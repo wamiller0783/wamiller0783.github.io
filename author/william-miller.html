@@ -76,7 +76,7 @@
 
 
 <h4>Function to show progress</h4>
-<p>I mentioned above that we will be retrieving a lot of data from a specific website, waiting random amounts of time between requests. This means that there will be a fair amount of waiting time involved in this progress as we step through lists of URLs to retrieve our data. Because of this, I'm going to set up a quick progress-tracking function. It simply takes a list and an element in that list as input, and prints the number of the element entered compared to the whole. For instance if I passed in "c" and "[a,b,c,d,e], this function will print "step 3 of 5". This give a rough idea of how long the scraping process will take and lets me know it's doing something.</p>
+<p>I mentioned above that we will be retrieving a lot of data from a specific website, waiting random amounts of time between requests. This means that there will be a fair amount of waiting time involved in this progress as we step through lists of URLs to retrieve our data. Because of this, I'm going to set up a quick progress-tracking function. It simply takes a list and an element in that list as input, and prints the number of the element entered compared to the whole. For instance if I passed in "c" and "[a,b,c,d,e]" this function will print "step 3 of 5". This gives a rough idea of how long the scraping process will take and lets me know it's doing something.</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">whole</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Inputs:</span>
