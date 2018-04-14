@@ -24,7 +24,8 @@
 		<div id="menu">
 			<div class="menu-navigation-container">
 				<ul id="menu-navigation" class="menu">
-						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/data-analysis.html">Data Analysis</a></li>
+						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/machine-learning.html">Machine Learning</a></li>
+						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/web-scraping.html">Web Scraping</a></li>
 						<li  class="active" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.linkedin.com/in/william-miller-88a37b159/">My LinkedIn</a></li>
 
 				</ul>
@@ -38,294 +39,360 @@
 		<div id="contents">
 <div class="post type-post status-publish format-standard hentry category-general" id="post">
 	<div class="entry-meta">
-		<div class="date"><a href="/titanic-survivor-post.html">Tue 10 April 2018</a></div>
+		<div class="date"><a href="/scraping-tutorial-post.html">Tue 10 April 2018</a></div>
 		<span class="byline">By <a href="/author/william-miller.html">William Miller</a></span>
-			<span class="cat-links"><a href="/category/data-analysis.html" title="View all posts in Data Analysis" rel="category tag">Data Analysis</a></span>
+			<span class="cat-links"><a href="/category/web-scraping.html" title="View all posts in Web Scraping" rel="category tag">Web Scraping</a></span>
 	</div> <!-- /#entry-meta -->
 	<div class="main">
 		<h2 class="entry-title">
-			<a href="/titanic-survivor-post.html" title="Permalink to Titanic Survivor Prediction" rel="bookmark">Titanic Survivor Prediction</a>
+			<a href="/scraping-tutorial-post.html" title="Permalink to Web Scraping Tutorial" rel="bookmark">Web Scraping Tutorial</a>
 		</h2>
 		<div class="entry-content">
-			<h2>Import libraries</h2>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+			<p>In preparation for a project comparing President Trump's veracity to that of contemporary U.S politicians, I have scraped some data from www.PolitiFact.com. Since this is a fairly basic data scraping project, I thought I would take a bit to make this into a tutorial on the subject. My goal here is to write some code that will:
+<ol><li> Take the name of any politician on PolitiFact.com in a list</li>
+<li>Retrieve the data from Politifact for: the date they made a statement, the text of that statement, the Politifact rating of that statement</li>
+<li>Store the resulting data in a dataframe and export to a CSV file</li>
+<ol></p>
+<h4>Libraries</h4>
+<p>First, there are several libraries that I need to import for just about any data scraping project. <ul>
+<li>"Beautiful Soup" makes navigating HTML much more convenient and is nearly indispensible for this purpose.</li>
+<li>We will be using the "get" function from the "requests" library to retrieve the HTML from specific URLs.
+<li>It is highly likely in any web scraping project is going to require searching or processing text using regular expressions, so importing the "re" library is also necessary.</li>
+<li>Any time you are requesting lot of data from a website, it is necessary to space out the requests you are making in order to avoid looking like you're instigating a DDoS attack, getting your IP banned temporarily. We will import the sleep function from the "time" library and "randint" from "random" to let us wait for random time intervals between requests.</li>
+<li>As with basically any data project, it is very likely, if not definite, that we will need functions from the "pandas" and "numpy" libraries. We will go ahead and import both.</li>
+<li>While this is specific to this particular project, I know that I will be parsing some dates as a part of this, so I will go ahead and load the "parser" function from the "dateutil" library. </li></ul></p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">random</span> <span class="kn">as</span> <span class="nn">rnd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
 </pre></div>
 
 
-<h2>Load data and perform initial evaluation</h2>
-<p>At the outset, I will print out an information call for the training and testing sets and sample of the training set. This will be a lot to look through, up front, but it will be valuable for planning how to proceed.</p>
-<div class="highlight"><pre><span></span><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./input/train.csv&#39;</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./input/test.csv&#39;</span><span class="p">)</span>
-
-
-<span class="n">combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">]</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
+<h4>Function to show progress</h4>
+<p>I mentioned above that we will be retrieving a lot of data from a specific website, waiting random amounts of time between requests. This means that there will be a fair amount of waiting time involved in this progress as we step through lists of URLs to retrieve our data. Because of this, I'm going to set up a quick progress-tracking function. It simply takes a list and an element in that list as input, and prints the number of the element entered compared to the whole. For instance if I passed in "c" and "[a,b,c,d,e], this function will print "step 3 of 5". This give a rough idea of how long the scraping process will take and lets us know it's doing something.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">whole</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inputs:</span>
+<span class="sd">    part = element of list</span>
+<span class="sd">    whole = list</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Print the number of element &quot;part&quot; is within &quot;whole&quot;</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">whole</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="s2">&quot;step &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-RangeIndex: 891 entries, 0 to 890
-Data columns (total 12 columns):
-PassengerId    891 non-null int64
-Survived       891 non-null int64
-Pclass         891 non-null int64
-Name           891 non-null object
-Sex            891 non-null object
-Age            714 non-null float64
-SibSp          891 non-null int64
-Parch          891 non-null int64
-Ticket         891 non-null object
-Fare           891 non-null float64
-Cabin          204 non-null object
-Embarked       889 non-null object
-dtypes: float64(2), int64(5), object(5)
-memory usage: 83.6+ KB
-None
-&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-RangeIndex: 418 entries, 0 to 417
-Data columns (total 11 columns):
-PassengerId    418 non-null int64
-Pclass         418 non-null int64
-Name           418 non-null object
-Sex            418 non-null object
-Age            332 non-null float64
-SibSp          418 non-null int64
-Parch          418 non-null int64
-Ticket         418 non-null object
-Fare           417 non-null float64
-Cabin          91 non-null object
-Embarked       418 non-null object
-dtypes: float64(2), int64(4), object(5)
-memory usage: 36.0+ KB
-None
+<h4>Recognize and exploit patterns in URLs</h4>
+<p>At this point, I had to go through a process I cannot really show here. I went to Politifact website and viewed which contemporary politicians had fact checking data on their website, and I selected a few of these. I then investigated how to get total number of fact checks for each person, and looked for patterns in the URLs I would need to request.</p>
+<p>For instance, I noticed if I clicked on "personalities", then "Donald Trump", and then selected "See all" for statements by Trump, it returned 28 pages of fact checks. I noticed that clicking through these pages returned different URLs, so page 3 had a URL of "http://www.politifact.com/personalities/donald-trump/statements/?page=3&amp;list=speaker". I ensured that I could plug in any page number to the right of "page=", and it would go to that page.</p>
+<p>Looking at other politicians, I noticed that their fact-check pages followed the same convention regarding their names, where Donald Trump's page contained "personalities/donald-trump", Barack Obama's page contained "personalities/barack-obama". "Firstname Lastname" was consistently formatted as "firstname-lastname". We can combine this information with the above to return a complete list of fact-checks for any politician listed on PolitiFact.</p>
+<h4>Format politican names for URLs, set up URL lookup data organization</h4>
+<p>To use this info, I will make a list of the names of the politician's I want ratings from. My aim is to do this in such a way that I could add any name of any person with fact checks on PolitiFact, and it will retrieve the data on them. I will then write some code to format that list in accordance with that URL name convention I mentioned.</p>
+<p>One thing that can be immensely useful in any data scraping project is to set up a dictionary to store information in based on what you're looking up. I will therefore create the dictionary "person_lookup_dict" with each politican's name as the key. I will then initialize a dictionary stored under each of their names that I can the url-formatted names to. Later, I will add additional lookup-related information to this dictionary.</p>
+<p>While it can be somewhat trickier at times to add and retrieve information from a dictionary rather than a bunch of separate lists, this will help immensely to keep all of the information we need to use retrieve the correct URLs organized. It will also help ensure that I can add names to the list of people whose fact-check data I wish to retrieve without modifying my code.</p>
+<div class="highlight"><pre><span></span><span class="c1"># People to retrieve fact check data for from PolitiFact.com.</span>
+<span class="n">person_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Donald Trump&#39;</span><span class="p">,</span> <span class="s1">&#39;Barack Obama&#39;</span><span class="p">,</span> <span class="s1">&#39;Mike Pence&#39;</span><span class="p">,</span> <span class="s1">&#39;Paul Ryan&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;Nancy Pelosi&#39;</span><span class="p">,</span> <span class="s1">&#39;Mitch McConnell&#39;</span><span class="p">,</span> <span class="s1">&#39;Charles Schumer&#39;</span><span class="p">]</span>
+
+<span class="c1"># Initialize a dictionary with the names above as keys.</span>
+<span class="n">person_lookup_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">person_list</span><span class="p">,</span> <span class="p">{})</span>
+
+<span class="c1"># Initialize a dictionary under each of these keys containing the URL formatting of each name.</span>
+<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
+    <span class="n">person_lookup</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">person_lookup</span> <span class="o">=</span> <span class="n">person_lookup</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+    <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;urlname&#39;</span><span class="p">:</span><span class="n">person_lookup</span><span class="p">}</span>
+
+<span class="c1"># Show the result.</span>
+<span class="n">person_lookup_dict</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>{&#39;Barack Obama&#39;: {&#39;urlname&#39;: &#39;barack-obama&#39;},
+ &#39;Charles Schumer&#39;: {&#39;urlname&#39;: &#39;charles-schumer&#39;},
+ &#39;Donald Trump&#39;: {&#39;urlname&#39;: &#39;donald-trump&#39;},
+ &#39;Mike Pence&#39;: {&#39;urlname&#39;: &#39;mike-pence&#39;},
+ &#39;Mitch McConnell&#39;: {&#39;urlname&#39;: &#39;mitch-mcconnell&#39;},
+ &#39;Nancy Pelosi&#39;: {&#39;urlname&#39;: &#39;nancy-pelosi&#39;},
+ &#39;Paul Ryan&#39;: {&#39;urlname&#39;: &#39;paul-ryan&#39;}}
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>     PassengerId  Survived  Pclass  \
-440          441         1       2   
-518          519         1       2   
-362          363         0       3   
-584          585         0       3   
-835          836         1       1   
-77            78         0       3   
-866          867         1       2   
-496          497         1       1   
-201          202         0       3   
-246          247         0       3   
-780          781         1       3   
-239          240         0       2   
-99           100         0       2   
-365          366         0       3   
-550          551         1       1   
-814          815         0       3   
-340          341         1       2   
-212          213         0       3   
-783          784         0       3   
-671          672         0       1
-
-                                                  Name     Sex   Age  SibSp  \
-440        Hart, Mrs. Benjamin (Esther Ada Bloomfield)  female  45.0      1   
-518  Angle, Mrs. William A (Florence &quot;Mary&quot; Agnes H...  female  36.0      1   
-362                    Barbara, Mrs. (Catherine David)  female  45.0      0   
-584                                Paulner, Mr. Uscher    male   NaN      0   
-835                        Compton, Miss. Sara Rebecca  female  39.0      1   
-77                            Moutal, Mr. Rahamin Haim    male   NaN      0   
-866                       Duran y More, Miss. Asuncion  female  27.0      1   
-496                     Eustis, Miss. Elizabeth Mussey  female  54.0      1   
-201                                Sage, Mr. Frederick    male   NaN      8   
-246              Lindahl, Miss. Agda Thorilda Viktoria  female  25.0      0   
-780                               Ayoub, Miss. Banoura  female  13.0      0   
-239                             Hunt, Mr. George Henry    male  33.0      0   
-99                                   Kantor, Mr. Sinai    male  34.0      1   
-365                     Adahl, Mr. Mauritz Nils Martin    male  30.0      0   
-550                        Thayer, Mr. John Borland Jr    male  17.0      0   
-814                         Tomlin, Mr. Ernest Portage    male  30.5      0   
-340                     Navratil, Master. Edmond Roger    male   2.0      1   
-212                             Perkin, Mr. John Henry    male  22.0      0   
-783                             Johnston, Mr. Andrew G    male   NaN      1   
-671                             Davidson, Mr. Thornton    male  31.0      1
-
-     Parch         Ticket      Fare Cabin Embarked  
-440      1   F.C.C. 13529   26.2500   NaN        S  
-518      0         226875   26.0000   NaN        S  
-362      1           2691   14.4542   NaN        C  
-584      0           3411    8.7125   NaN        C  
-835      1       PC 17756   83.1583   E49        C  
-77       0         374746    8.0500   NaN        S  
-866      0  SC/PARIS 2149   13.8583   NaN        C  
-496      0          36947   78.2667   D20        C  
-201      2       CA. 2343   69.5500   NaN        S  
-246      0         347071    7.7750   NaN        S  
-780      0           2687    7.2292   NaN        C  
-239      0     SCO/W 1585   12.2750   NaN        S  
-99       0         244367   26.0000   NaN        S  
-365      0         C 7076    7.2500   NaN        S  
-550      2          17421  110.8833   C70        C  
-814      0         364499    8.0500   NaN        S  
-340      1         230080   26.0000    F2        S  
-212      0      A/5 21174    7.2500   NaN        S  
-783      2     W./C. 6607   23.4500   NaN        S  
-671      0     F.C. 12750   52.0000   B71        S
-</pre></div>
-
-
-<p>The description of the data reveals a few problems:
-<ul list-style-type: circle;>
-    <li>Age entries are incomplete in both training and testing data sets. These will need to be filled in either with mean ages, or with ages predicted by other data that correlates.</li>
-    <li>"Cabin" data is recorded very infrequently.</li>
-    <li>"Ticket" data appears noisy and difficult to parse, if it turns out to be useful at all.</li>
-    <li>A couple of entries in "Embarked" are missing.</li>
-    <li>One entry in "Fare" is missing in the test data.</li>
-</ul></p>
-<p>The sample reveals that there are also some adjustments that need to be made to the data:
-<ul list-style-type: circle;>
-    <li>"Sex" should be simplified to "0" and "1"</li>
-    <li>"Embarked" should be mapped to numerical values</li>
-    <li>Since all names include titles, it may be possible to isolate the titles and make use of them</li>
-    <li>"Ticket" can likely be dropped</li></p>
-<h2>Wrangle Data</h2>
-<p>Make changes determined in initial evaluation, in the following order:
+<h4>Retrieve number of pages per person for URL lookup</h4>
+<p>At this point, we need to delve into the HTML data on page 1 for at least a couple of the people we're retrieving data on, with the aim of writing code to scrape the total number of pages of fact-checks each person has. This will prevent us from having to manually enter this number for each person, and manually update that number any time we wish to run this code again that the number of pages may have changed.</p>
+<p>I start by pulling the HTML source from page 1 for each person. Looking at one of these webpages in my browser, at the bottom of the screen I can see the text "Page 1 of ??" on the bottom of it, and it's a safe bet that is encoded in the HTML and can be retrieved using BeautifulSoup. Looking at the HTML data from page directly (it's easiest to visit the URL in a browser, right-click, and then hit "View Page Source"), and searching for that text, I find that it is contained in a tag "step-links__current". Searching for this, I can find that there are two instance of this per page. Checking other pages, I find that this is consistently the case.</p>
+<p>The plan therefore becomes the following:
 <ol>
-    <li>Fill in trivial missing values and convert to string categories to numerical</li>
-        <ol>
-        <li>Fill missing values in "Embarked"</li>
-        <li>Fill missing values in "Fare"</li>
-        <li>Change "Sex" and "Embarked" to numerical values.</li>
-        </ol><br>
-    <li>Add additional features, where possible.</li>
-            <ol>
-            <li>Create "Family_Size" feature from "SibSp" and "Parch"</li>
-            <li>If possible, extract titles from "Names" and replace names with titles.</li>
-            </ol><br>
-    <li>Determine best method for filling in missing age data.</li>     <br>
-    <li>Fill in missing age data</li>
+<li>Request the data for page 1 for each person in our list. (Waiting between each request.)</li>
+<li>Find the string "Page 1 of ??"</li>
+<li>Process that string to get only the integer for the maximum number of pages.</li>
+<li>Store that value for each person in the dictionary, in the dictionary under each name.</li>
 </ol></p>
-<p>From there, I will use XGBoost and RandomForest classifiers to make predictions from the resulting data, tune them to consistently yield accurate predictions, then choose the best of the two.</p>
-<p>Before proceeding any further, I will go ahead and set the index to "PassengerId"</p>
-<div class="highlight"><pre><span></span><span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PassengerId&#39;</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PassengerId&#39;</span><span class="p">)</span>
-<span class="n">combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
+    <span class="c1"># Request data from page 1 for each person in list.</span>
+    <span class="n">person_url</span><span class="o">=</span><span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlname&#39;</span><span class="p">]</span>
+    <span class="n">start_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://www.politifact.com/personalities/&quot;</span> <span class="o">+</span> <span class="n">person_url</span> <span class="o">+</span> <span class="s2">&quot;/statements/?page=1&amp;list=speaker&quot;</span><span class="p">)</span>
+    <span class="n">start_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">start_page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Wait a random amount of time between 10 and 20 seconds.</span>
+    <span class="c1">#If an error is returned, state the status code and break the loop.</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">start_page</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;We may have a problem here.&#39;</span><span class="p">,</span> <span class="n">start_page</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+        <span class="k">break</span>
+
+    <span class="c1"># Find the string &quot;Page 1 of ??&quot; (contained within tags &quot;class_=...&quot;).</span>
+    <span class="c1"># Process down to integer value of max pages.</span>
+    <span class="n">num_page_str</span> <span class="o">=</span> <span class="n">start_soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;step-links__current&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;step-links__current&quot;</span><span class="p">)</span>
+    <span class="n">num_page_sub_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;(\d+) of (\d+)&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_page_str</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlpages&#39;</span><span class="p">]</span><span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_page_sub_str</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Show progress.</span>
+    <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">person_lookup_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>    
+
+<span class="c1"># Show results.</span>
+<span class="n">person_lookup_dict</span>
 </pre></div>
 
 
-<h3>Fill trivial missing values, convert categorical strings to numerical</h3>
-<h5>Fill missing values in "Embarked" and "Fare"</h5>
-<div class="highlight"><pre><span></span><span class="n">port_mode</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">Embarked</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">fare_med</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<div class="highlight"><pre><span></span>step 1 of 7
+step 2 of 7
+step 3 of 7
+step 4 of 7
+step 5 of 7
+step 6 of 7
+step 7 of 7
 
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">port_mode</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Fare&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span> <span class="p">[</span><span class="s1">&#39;Fare&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fare_med</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">port_mode</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">fare_med</span><span class="p">)</span>
+
+
+
+{&#39;Barack Obama&#39;: {&#39;urlname&#39;: &#39;barack-obama&#39;, &#39;urlpages&#39;: 31},
+ &#39;Charles Schumer&#39;: {&#39;urlname&#39;: &#39;charles-schumer&#39;, &#39;urlpages&#39;: 1},
+ &#39;Donald Trump&#39;: {&#39;urlname&#39;: &#39;donald-trump&#39;, &#39;urlpages&#39;: 28},
+ &#39;Mike Pence&#39;: {&#39;urlname&#39;: &#39;mike-pence&#39;, &#39;urlpages&#39;: 3},
+ &#39;Mitch McConnell&#39;: {&#39;urlname&#39;: &#39;mitch-mcconnell&#39;, &#39;urlpages&#39;: 2},
+ &#39;Nancy Pelosi&#39;: {&#39;urlname&#39;: &#39;nancy-pelosi&#39;, &#39;urlpages&#39;: 2},
+ &#39;Paul Ryan&#39;: {&#39;urlname&#39;: &#39;paul-ryan&#39;, &#39;urlpages&#39;: 5}}
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>S
-14.4542
+<h4>Generate URL list</h4>
+<p>We now have everything we need to generate a list of URLs for each person in the list. We can now iterate through each key (politician name) in the dictionary, retrieve the URL-formatted name and the number of pages for each person, and then generate a list of URLs from that info. I will store the URLs in the same person_lookup_dict that the other data is stored in, just to keep it all consistent and neat.</p>
+<div class="highlight"><pre><span></span><span class="c1"># For each key in person_lookup_dict, retrieve that data to build correct URLs, then build URLs.</span>
+<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
+    <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">person_name_url</span> <span class="o">=</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlname&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlpages&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.politifact.com/personalities/&quot;</span> <span class="o">+</span> <span class="n">person_name_url</span>\
+        <span class="o">+</span> <span class="s2">&quot;/statements/?page=&quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span><span class="s2">&quot;&amp;list=speaker&quot;</span>
+
+        <span class="c1"># Store URLs in person_lookup_dict.</span>
+        <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="c1">#Show results.</span>
+<span class="n">person_lookup_dict</span>
 </pre></div>
 
 
-<h5>Map "Sex" and "Embarked" to numerical values</h5>
-<div class="highlight"><pre><span></span><span class="n">sex_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;female&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;male&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-<span class="n">embarked_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">sex_mapping</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">embarked_mapping</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>{&#39;Barack Obama&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/barack-obama/statements/?page=1&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=2&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=3&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=4&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=5&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=6&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=7&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=8&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=9&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=10&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=11&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=12&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=13&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=14&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=15&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=16&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=17&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=18&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=19&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=20&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=21&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=22&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=23&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=24&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=25&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=26&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=27&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=28&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=29&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=30&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=31&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;barack-obama&#39;,
+  &#39;urlpages&#39;: 31},
+ &#39;Charles Schumer&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/charles-schumer/statements/?page=1&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;charles-schumer&#39;,
+  &#39;urlpages&#39;: 1},
+ &#39;Donald Trump&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/donald-trump/statements/?page=1&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=2&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=3&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=4&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=5&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=6&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=7&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=8&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=9&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=10&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=11&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=12&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=13&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=14&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=15&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=16&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=17&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=18&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=19&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=20&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=21&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=22&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=23&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=24&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=25&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=26&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=27&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=28&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;donald-trump&#39;,
+  &#39;urlpages&#39;: 28},
+ &#39;Mike Pence&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/mike-pence/statements/?page=1&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/mike-pence/statements/?page=2&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/mike-pence/statements/?page=3&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;mike-pence&#39;,
+  &#39;urlpages&#39;: 3},
+ &#39;Mitch McConnell&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/mitch-mcconnell/statements/?page=1&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/mitch-mcconnell/statements/?page=2&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;mitch-mcconnell&#39;,
+  &#39;urlpages&#39;: 2},
+ &#39;Nancy Pelosi&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/nancy-pelosi/statements/?page=1&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/nancy-pelosi/statements/?page=2&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;nancy-pelosi&#39;,
+  &#39;urlpages&#39;: 2},
+ &#39;Paul Ryan&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=1&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=2&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=3&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=4&amp;list=speaker&#39;,
+   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=5&amp;list=speaker&#39;],
+  &#39;urlname&#39;: &#39;paul-ryan&#39;,
+  &#39;urlpages&#39;: 5}}
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>             Survived  Pclass  \
-PassengerId                     
-729                 0       2   
-732                 0       3   
-325                 0       3   
-716                 0       3   
-329                 1       3   
-625                 0       3   
-257                 1       1   
-395                 1       3   
-85                  1       2   
-828                 1       2
+<h4>Retrieve and parse data</h4>
+<p>Here is the real substance to what we are doing. For the sake of organization, I created a function that parses the data I want to retrieve from the HTML I requested using the generated URLs. This part of the process involves more HTML investigation like that done for finding the page number data above, except here I'm looking for tags that allow be to locate the date a statement was made, the text of that statement, and the truth-rating assigned to it.</p>
+<p>I found that the tag "class_='statement__source'" containing the politician's name (the version in the list prior to URL formatting) contained all the data I was look for. Below, I put the HTML containing that data into a list with each statement as an element. I then pass that list to a function that steps through it, scrapes the data I want, and appends only that data to a dictionary (truth_data).</p>
+<div class="highlight"><pre><span></span><span class="c1"># See code below before parsing function code.</span>
+<span class="k">def</span> <span class="nf">truth_extractor</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">fact_checks</span><span class="p">,</span> <span class="n">truth_data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inputs:</span>
+<span class="sd">    person = Name of person making the statement in question.</span>
 
-                                                          Name  Sex   Age  \
-PassengerId                                                                 
-729                            Bryhl, Mr. Kurt Arnold Gottfrid    1  25.0   
-732                                   Hassan, Mr. Houssein G N    1  11.0   
-325                                   Sage, Mr. George John Jr    1   NaN   
-716                 Soholt, Mr. Peter Andreas Lauritz Andersen    1  19.0   
-329             Goldsmith, Mrs. Frank John (Emily Alice Brown)    0  31.0   
-625                                Bowen, Mr. David John &quot;Dai&quot;    1  21.0   
-257                             Thorne, Mrs. Gertrude Maybelle    0   NaN   
-395          Sandstrom, Mrs. Hjalmar (Agnes Charlotta Bengt...    0  24.0   
-85                                         Ilett, Miss. Bertha    0  17.0   
-828                                      Mallet, Master. Andre    1   1.0
+<span class="sd">    fact-checks = list of HTML elements containing that fact-check data to be scraped</span>
 
-             SibSp  Parch           Ticket     Fare  Cabin  Embarked  
-PassengerId                                                           
-729              1      0           236853  26.0000    NaN         0  
-732              0      0             2699  18.7875    NaN         1  
-325              8      2         CA. 2343  69.5500    NaN         0  
-716              0      0           348124   7.6500  F G73         0  
-329              1      1           363291  20.5250    NaN         0  
-625              0      0            54636  16.1000    NaN         0  
-257              0      0         PC 17585  79.2000    NaN         1  
-395              0      2          PP 9549  16.7000     G6         0  
-85               0      0       SO/C 14885  10.5000    NaN         0  
-828              0      2  S.C./PARIS 2079  37.0042    NaN         1
+<span class="sd">    truth_data = dictionary of data scraped so far to be appended and returned.</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Step through list of HTML elements containing desired data, locate data, parse into desired format,</span>
+<span class="sd">    append to dictionary.</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    truth_data = dictionary with scraped data appended</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Iterate over items stored in fact_checks list.</span>
+    <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">fact_checks</span><span class="p">:</span>
+        <span class="c1">#Within this item, located the tag &quot;class_=&#39;statement&#39;.</span>
+        <span class="n">statement</span> <span class="o">=</span> <span class="n">check</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s1">&#39;statement&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Locate the the data for statement date, truth rating (under meter), and text using associated tags.</span>
+        <span class="n">statement_date</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;article__meta&quot;</span><span class="p">)</span>
+        <span class="n">statement_meter</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;meter&quot;</span><span class="p">)</span>
+        <span class="n">statement_text</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__text&quot;</span><span class="p">)</span>
+
+        <span class="c1">#Perform first parsing of each string retrieved above. Text needs no parsing.</span>
+        <span class="n">parse_date_1</span> <span class="o">=</span> <span class="n">statement_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">parse_meter_1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;(\&quot;(.+?)\&quot;)&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">statement_meter</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+        <span class="n">parse_text_final</span> <span class="o">=</span> <span class="n">statement_text</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="c1">#Perform further parsing of date, final parsing of truth rating string.</span>
+        <span class="n">parse_date_2</span> <span class="o">=</span> <span class="n">parse_date_1</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;on &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">parse_meter_final</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parse_meter_1</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+
+        <span class="c1">#Perform final parsing of date</span>
+        <span class="n">parse_date_final</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">parse_date_2</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+        <span class="c1">#Append scraped data to dictionary initialized below.</span>
+        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Person&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_date_final</span><span class="p">)</span>
+        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Veracity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_meter_final</span><span class="p">)</span>
+        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_text_final</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">truth_data</span>
+
+<span class="c1"># Set up a dictionary to contain scraped data.</span>
+<span class="n">truth_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Person&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Date&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Veracity&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Text&#39;</span><span class="p">:[]}</span>
+
+<span class="c1"># create a list of politician names from the lookup dictionary.</span>
+<span class="n">person_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">person_lookup_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="c1"># for each item in the list, return the HTML element containing the data I wish to scrape.</span>
+<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_list</span><span class="p">:</span>
+    <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">person_list</span><span class="p">)</span>
+
+    <span class="c1"># Retrieve the list of URLs generated earlier of each person in the list</span>
+    <span class="n">url_list</span> <span class="o">=</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Iterate through the list of URLs.</span>
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+        <span class="c1"># Retrieve the webpage for each URL.</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="c1"># Wait a random amount of time between 10 and 20 seconds.</span>
+        <span class="c1"># If an error is returned, state the status code and break the loop.</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;We may have a problem here.&#39;</span><span class="p">,</span> <span class="n">page</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+            <span class="k">break</span>
+
+        <span class="c1"># Parse the HTML using BeatifulSoup.</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Save the elements containing the desired data to a list.</span>
+        <span class="n">fact_checks</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__source&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+
+        <span class="c1"># Pass that list to the fuction &quot;truth_extractor&quot;.</span>
+        <span class="n">truth_extractor</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">fact_checks</span><span class="p">,</span> <span class="n">truth_data</span><span class="p">)</span>   
+
+        <span class="c1"># Show progress.</span>
+        <span class="n">show_progress</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">url_list</span><span class="p">)</span>
 </pre></div>
 
 
-<h3>Extract additional features</h3>
-<p>It is always worth considering if additional features can be created out of existing ones that might prove useful for the purposes of prediction. It is always possible to see after a prediction is made which features were most useful, and anything that proved to be useless (or mostly so) can be dropped.</p>
-<h4>Investigate NaN significance</h4>
-<p>Before filling NaN data, it is worth exploring if there is a significant difference in survival rate between the data that is NaN versus that which is not. If there is a difference, it may be worth creating new binary features that store whether or not a value was NaN for that entry.</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;Mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="c1"># Convert dictionary of scraped data to dataframe.</span>
+<span class="n">truth_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">truth_data</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Cabin not Nan mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Cabin NaN mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Age not Nan mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Age NaN mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Mean survival rate: 0.384
-
-Cabin not Nan mean survival rate: 0.667
-Cabin NaN mean survival rate: 0.300
-
-Age not Nan mean survival rate: 0.406
-Age NaN mean survival rate: 0.294
-</pre></div>
-
-
-<p>It appears that it will definitely be worth accounting for whether or not this data was present. For reasons that are not apparent from the data, there was 36.7% greater chance that a passenger survived if we have data for the cabin they stayed in. Though it's not quite as pronounced, there is also a significant difference in survival chance between passengers who were missing age data and those who were not.</p>
-<h4>Create "Cabin_Record" and "Age_Record" features</h4>
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-<span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Cabin_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-
-<span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-<span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-
-<span class="n">train_df</span><span class="p">[[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">,</span> <span class="s1">&#39;Cabin_Record&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">,</span> <span class="s1">&#39;Age_Record&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># Show final product.</span>
+<span class="n">truth_df</span>
 </pre></div>
 
 
@@ -347,649 +414,454 @@ Age NaN mean survival rate: 0.294
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>Cabin</th>
-      <th>Cabin_Record</th>
-      <th>Age</th>
-      <th>Age_Record</th>
-    </tr>
-    <tr>
-      <th>PassengerId</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
+      <th>Date</th>
+      <th>Person</th>
+      <th>Text</th>
+      <th>Veracity</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>696</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>52.0</td>
-      <td>1</td>
+      <th>0</th>
+      <td>2018-04-10</td>
+      <td>Donald Trump</td>
+      <td>\nEPA administrator Scott Pruitt's short-term ...</td>
+      <td>Mostly False</td>
     </tr>
     <tr>
-      <th>666</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>32.0</td>
-      <td>1</td>
+      <th>1</th>
+      <td>2018-04-10</td>
+      <td>Donald Trump</td>
+      <td>\nSays Scott Pruitt’s security spending was "s...</td>
+      <td>Mostly False</td>
     </tr>
     <tr>
-      <th>262</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>3.0</td>
-      <td>1</td>
+      <th>2</th>
+      <td>2018-04-09</td>
+      <td>Donald Trump</td>
+      <td>\n"When a car is sent to the United States fro...</td>
+      <td>Mostly True</td>
     </tr>
     <tr>
-      <th>761</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
+      <th>3</th>
+      <td>2018-04-09</td>
+      <td>Donald Trump</td>
+      <td>\n"This will be the last time — April — that y...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2018-04-06</td>
+      <td>Donald Trump</td>
+      <td>\n"In many places, like California, the same p...</td>
+      <td>Pants on Fire!</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2018-04-04</td>
+      <td>Donald Trump</td>
+      <td>\n"We’ve started building the wall."\r\n\n</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2018-04-02</td>
+      <td>Donald Trump</td>
+      <td>\nSays caravans of people are coming to cross ...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2018-04-02</td>
+      <td>Donald Trump</td>
+      <td>\nMexico has "very strong border laws -- ours ...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2018-04-02</td>
+      <td>Donald Trump</td>
+      <td>\n"Only fools, or worse, are saying that our m...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2018-03-28</td>
+      <td>Donald Trump</td>
+      <td>\n"Last year we lost $500 billion on trade wit...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>2018-03-22</td>
+      <td>Donald Trump</td>
+      <td>\nSays Conor Lamb "ran on a campaign that said...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>2018-03-21</td>
+      <td>Donald Trump</td>
+      <td>\nRobert Mueller’s investigative team has "13 ...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>2018-03-16</td>
+      <td>Donald Trump</td>
+      <td>\nSays Democratic obstruction is the reason wh...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>2018-03-15</td>
+      <td>Donald Trump</td>
+      <td>\nIn Japan, "they take a bowling ball from 20 ...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2018-03-15</td>
+      <td>Donald Trump</td>
+      <td>\n"We do have a Trade Deficit with Canada, as ...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>2018-03-14</td>
+      <td>Donald Trump</td>
+      <td>\nSays China and Singapore impose the death pe...</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>2018-03-13</td>
+      <td>Donald Trump</td>
+      <td>\n"The state of California is begging us to bu...</td>
+      <td>Pants on Fire!</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2018-03-13</td>
+      <td>Donald Trump</td>
+      <td>\nSays the U.S. steel and aluminum industry is...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2018-03-12</td>
+      <td>Donald Trump</td>
+      <td>\nThe last private rocket launch "cost $80 mil...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2018-03-09</td>
+      <td>Donald Trump</td>
+      <td>\nAmerican aluminum and steel "are vital to ou...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>2018-03-09</td>
+      <td>Donald Trump</td>
+      <td>\n"When I was campaigning, I was talking about...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>2018-03-07</td>
+      <td>Donald Trump</td>
+      <td>\n"Democrats are nowhere to be found on DACA."...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>2018-03-06</td>
+      <td>Donald Trump</td>
+      <td>\nThe 2018 Academy Awards show was the "lowest...</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>2018-03-01</td>
+      <td>Donald Trump</td>
+      <td>\n"You take Pulse nightclub. If you had one pe...</td>
+      <td>False</td>
     </tr>
     <tr>
       <th>24</th>
-      <td>A6</td>
-      <td>1</td>
-      <td>28.0</td>
-      <td>1</td>
+      <td>2018-02-20</td>
+      <td>Donald Trump</td>
+      <td>\n"I have been much tougher on Russia than Oba...</td>
+      <td>Mostly False</td>
     </tr>
     <tr>
-      <th>404</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>28.0</td>
-      <td>1</td>
+      <th>25</th>
+      <td>2018-02-19</td>
+      <td>Donald Trump</td>
+      <td>\n"I never said Russia did not meddle in the e...</td>
+      <td>Pants on Fire!</td>
     </tr>
     <tr>
-      <th>448</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>34.0</td>
-      <td>1</td>
+      <th>26</th>
+      <td>2018-02-08</td>
+      <td>Donald Trump</td>
+      <td>\n"The Democrats are pushing for Universal Hea...</td>
+      <td>Mostly False</td>
     </tr>
     <tr>
-      <th>385</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
+      <th>27</th>
+      <td>2018-02-07</td>
+      <td>Donald Trump</td>
+      <td>\nMany gang members have taken advantage of "g...</td>
+      <td>Half-True</td>
     </tr>
     <tr>
-      <th>333</th>
-      <td>C91</td>
-      <td>1</td>
-      <td>38.0</td>
-      <td>1</td>
+      <th>28</th>
+      <td>2018-02-06</td>
+      <td>Donald Trump</td>
+      <td>\nAt the State of the Union address, Democrats...</td>
+      <td>Pants on Fire!</td>
     </tr>
     <tr>
-      <th>784</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
+      <th>29</th>
+      <td>2018-02-02</td>
+      <td>Donald Trump</td>
+      <td>\n"Instead of two for one, we have cut 22 burd...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1321</th>
+      <td>2013-05-28</td>
+      <td>Mitch McConnell</td>
+      <td>\n\r\n\tSays Health and Human Services Secreta...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1322</th>
+      <td>2010-06-14</td>
+      <td>Mitch McConnell</td>
+      <td>\n"A major part" of the climate change bill sp...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1323</th>
+      <td>2010-04-20</td>
+      <td>Mitch McConnell</td>
+      <td>\nNew financial regulation "actually guarantee...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1324</th>
+      <td>2010-02-19</td>
+      <td>Mitch McConnell</td>
+      <td>\nThe stimulus includes  "$219,000 to study  t...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>1325</th>
+      <td>2010-02-19</td>
+      <td>Mitch McConnell</td>
+      <td>\n"$100,000 in  stimulus funds (were) used for...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1326</th>
+      <td>2010-02-01</td>
+      <td>Mitch McConnell</td>
+      <td>\nOn a bipartisan task force on ways to improv...</td>
+      <td>Full Flop</td>
+    </tr>
+    <tr>
+      <th>1327</th>
+      <td>2009-12-02</td>
+      <td>Mitch McConnell</td>
+      <td>\nThe Senate health care bill does not contain...</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1328</th>
+      <td>2009-06-01</td>
+      <td>Mitch McConnell</td>
+      <td>\n"The Department of Justice, under the Obama ...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>1329</th>
+      <td>2009-05-19</td>
+      <td>Mitch McConnell</td>
+      <td>\nA public option for health care would end pr...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>1330</th>
+      <td>2009-03-03</td>
+      <td>Mitch McConnell</td>
+      <td>\n"In just one month, the Democrats have spent...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1331</th>
+      <td>2009-02-03</td>
+      <td>Mitch McConnell</td>
+      <td>\n To give the proposed economic stimulus plan...</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1332</th>
+      <td>2009-01-05</td>
+      <td>Mitch McConnell</td>
+      <td>\nIf Obama's economic plan creates 600,000 new...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1333</th>
+      <td>2017-03-27</td>
+      <td>Charles Schumer</td>
+      <td>\n"In fact, if you add up the net wealth of hi...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1334</th>
+      <td>2017-10-08</td>
+      <td>Charles Schumer</td>
+      <td>\nTrump’s tax plan is "completely focused on t...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1335</th>
+      <td>2017-10-06</td>
+      <td>Charles Schumer</td>
+      <td>\n"The Republicans are proposing to pay for th...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>1336</th>
+      <td>2017-07-25</td>
+      <td>Charles Schumer</td>
+      <td>\n"When the price for oil goes up on the marke...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1337</th>
+      <td>2017-05-18</td>
+      <td>Charles Schumer</td>
+      <td>\n"President Obama became the first president ...</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1338</th>
+      <td>2017-03-27</td>
+      <td>Charles Schumer</td>
+      <td>\n"In fact, if you add up the net wealth of hi...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1339</th>
+      <td>2017-01-27</td>
+      <td>Charles Schumer</td>
+      <td>\nSays Rex "Tillerson won't divest from Exxon....</td>
+      <td>Pants on Fire!</td>
+    </tr>
+    <tr>
+      <th>1340</th>
+      <td>2017-01-10</td>
+      <td>Charles Schumer</td>
+      <td>\nSays Donald Trump campaigned on not cutting ...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1341</th>
+      <td>2016-06-15</td>
+      <td>Charles Schumer</td>
+      <td>\nLast year, "244 suspected terrorists walked ...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1342</th>
+      <td>2015-05-18</td>
+      <td>Charles Schumer</td>
+      <td>\n"It is simply a fact that insufficient fundi...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>1343</th>
+      <td>2015-03-08</td>
+      <td>Charles Schumer</td>
+      <td>\n\r\n"The State Department asked all secretar...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>1344</th>
+      <td>2014-12-04</td>
+      <td>Charles Schumer</td>
+      <td>\nIn 2010, uninsured voters made up "about 5 p...</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1345</th>
+      <td>2014-05-08</td>
+      <td>Charles Schumer</td>
+      <td>\nIf you work 40 hours a week at the proposed ...</td>
+      <td>Half-True</td>
+    </tr>
+    <tr>
+      <th>1346</th>
+      <td>2013-10-08</td>
+      <td>Charles Schumer</td>
+      <td>\nBecause of the 2011 debt ceiling fight, "the...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1347</th>
+      <td>2010-08-04</td>
+      <td>Charles Schumer</td>
+      <td>\n\r\n\t"Eight of the nine justices in the Sup...</td>
+      <td>Mostly True</td>
+    </tr>
+    <tr>
+      <th>1348</th>
+      <td>2010-04-13</td>
+      <td>Charles Schumer</td>
+      <td>\n"No one questioned that she (Judge Sotomayor...</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1349</th>
+      <td>2010-01-22</td>
+      <td>Charles Schumer</td>
+      <td>\n"With a stroke of a pen, the (U.S. Supreme C...</td>
+      <td>Mostly False</td>
+    </tr>
+    <tr>
+      <th>1350</th>
+      <td>2009-03-12</td>
+      <td>Charles Schumer</td>
+      <td>\n\r\n\t"No Bridge to Nowhere could occur."\n</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
+<p>1351 rows × 4 columns</p>
 </div>
 
-<h4>Create "Family_Size" feature</h4>
-<p>One first possible additional feature to consider comes from the fact that Sibsp and Parch have some ambiguity built into them. It seems likely that there would be a significant difference in survival rate between people who traveled with their spouses versus their siblings, or parents versus their children. It might be beneficial to roll these into a single statistic of family size, as this will eliminate the inconsistency that is present in the 'SibSp' and 'Parch' data.</p>
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;SibSp&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Parch&#39;</span><span class="p">]</span>
-<span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;SibSp&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Parch&#39;</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><span class="c1"># Save dataframe to CSV file.</span>
+<span class="n">truth_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;politic_truth.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()[</span><span class="s1">&#39;Parch&#39;</span><span class="p">]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Survived        0.081629
-Pclass          0.018443
-Sex            -0.245489
-Age            -0.189119
-SibSp           0.414838
-Parch           1.000000
-Fare            0.216225
-Embarked       -0.078665
-Cabin_Record    0.036987
-Age_Record      0.124104
-Family_Size     0.783111
-Name: Parch, dtype: float64
-</pre></div>
-
-
-<h4>Create "Title" feature</h4>
-<p>One can see from a sample of the data above that each name has an associated title, and that each appears to follow a similar format. While I've not shown this due to the amount of space required, I took several large samples to verify that this is the case for at least enough of the data that it might be useful. After extracting the "Title" info, I will look at how many titles their are, see if any entries are lacking titles, or if any titles may not be useful. It is simple enough to use regular expressions to extract the titles from the names.</p>
-<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s1">&#39; ([A-za-z]+)\.&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">reindex</span><span class="p">())</span>
-<span class="k">print</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reindex</span><span class="p">())</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>          Title        Age  Survived
-Title                               
-Capt          1  70.000000  0.000000
-Col           2  58.000000  0.500000
-Countess      1  33.000000  1.000000
-Don           1  40.000000  0.000000
-Dr            7  42.000000  0.428571
-Jonkheer      1  38.000000  0.000000
-Lady          1  48.000000  1.000000
-Major         2  48.500000  0.500000
-Master       40   4.574167  0.575000
-Miss        182  21.773973  0.697802
-Mlle          2  24.000000  1.000000
-Mme           1  24.000000  1.000000
-Mr          517  32.368090  0.156673
-Mrs         125  35.898148  0.792000
-Ms            1  28.000000  1.000000
-Rev           6  43.166667  0.000000
-Sir           1  49.000000  1.000000
-        Pclass  Name  Sex  Age  SibSp  Parch  Ticket  Fare  Cabin  Embarked  \
-Title                                                                         
-Col          2     2    2    2      2      2       2     2      2         2   
-Dona         1     1    1    1      1      1       1     1      1         1   
-Dr           1     1    1    1      1      1       1     1      1         1   
-Master      21    21   21   17     21     21      21    21      2        21   
-Miss        78    78   78   64     78     78      78    78     11        78   
-Mr         240   240  240  183    240    240     240   240     42       240   
-Mrs         72    72   72   62     72     72      72    72     32        72   
-Ms           1     1    1    0      1      1       1     1      0         1   
-Rev          2     2    2    2      2      2       2     2      0         2
-
-        Cabin_Record  Age_Record  Family_Size  
-Title                                          
-Col                2           2            2  
-Dona               1           1            1  
-Dr                 1           1            1  
-Master            21          21           21  
-Miss              78          78           78  
-Mr               240         240          240  
-Mrs               72          72           72  
-Ms                 1           1            1  
-Rev                2           2            2
-</pre></div>
-
-
-<p>It appears that title extraction worked and that the data may prove useful. Fortunately, every passenger has an associated title and there appear to be significant differences between the titles when it comes to average survival rate, sex, and age. There are, however, a large number of titles that represent an insignificant portion of the population, and these are not useful for the purposes of prediction, which means this requires some additional processing.</p>
-<h5>Tidy up title data, convert to numerical values</h5>
-<p>I will combine synonymous titles (e.g. "Ms" and "Miss"). I will remove the titles that occur with a frequency that is unlikely to be useful. I notice that the majority of infrequent titles correlate with the careers of males over 40, so I will combine these into their own category.</p>
-<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;Capt&#39;</span><span class="p">,</span> <span class="s1">&#39;Col&#39;</span><span class="p">,</span> <span class="s1">&#39;Don&#39;</span><span class="p">,</span> <span class="s1">&#39;Dr&#39;</span><span class="p">,</span> <span class="s1">&#39;Major&#39;</span><span class="p">,</span> <span class="s1">&#39;Rev&#39;</span><span class="p">,</span> <span class="s1">&#39;Sir&#39;</span><span class="p">],</span> <span class="s1">&#39;CareerMale&#39;</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Jonkheer&#39;</span><span class="p">,</span> <span class="s1">&#39;Mr&#39;</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;Countess&#39;</span><span class="p">,</span> <span class="s1">&#39;Mme&#39;</span><span class="p">,</span> <span class="s1">&#39;Lady&#39;</span><span class="p">],</span> <span class="s1">&#39;Mrs&#39;</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;Mlle&#39;</span><span class="p">,</span> <span class="s1">&#39;Ms&#39;</span><span class="p">],</span> <span class="s1">&#39;Miss&#39;</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">reindex</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">]))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">])</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">],</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>            Title        Age  Survived
-Title                                 
-CareerMale     20  46.473684  0.300000
-Master         40   4.574167  0.575000
-Miss          185  21.845638  0.702703
-Mr            518  32.382206  0.156371
-Mrs           128  35.873874  0.796875
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_28_1.png"></p>
-<p>It seems highly likely that there would be some kind of relationship between the "Title" and "Family_Size" features I've created. I will plot the two of those together and see if anything stands out.</p>
-<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Title&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">,</span> <span class="s1">&#39;Family_Size&#39;</span><span class="p">])</span>
-      <span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-      <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-      <span class="o">.</span><span class="n">pipe</span><span class="p">((</span><span class="n">sns</span><span class="o">.</span><span class="n">factorplot</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">),</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Title&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Survived&#39;</span><span class="p">))</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_30_0.png"></p>
-<p>The relationships here are obvious - those in the "CareerMale" category tended to travel with one other person, those in "Master" were in a group with at least 2 others (parents), and so on. It also seems clear that the higher a passenger's family size, the lower their chance of survival.</p>
-<p>Now to convert the title strings to numerical for future conversion to categories.</p>
-<div class="highlight"><pre><span></span><span class="n">title_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;CareerMale&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Mrs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Mr&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Miss&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Master&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">title_mapping</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-
-<span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="n">combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">]</span>
-</pre></div>
-
-
-<h4>Explore age significance.</h4>
-<p>I want to explore the hypothesis that accurately filling in the missing age data (as opposed to simply filling missing ages with the mean age) may have an effect in the accuracy of survival prediction. This requires that I first look at whether certain ages actually correlate to survival rates or not.</p>
-<div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">]))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span>
-            <span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()],</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Not Survived&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_34_1.png"></p>
-<p>It is clear that passengers under 18 had a higher survival rate. Passengers between the ages of 20 and 30 had a much lower survival rate than any other age. It is also apparent that a very low number of people over the age of 60 survived.</p>
-<h4>Complete missing age data</h4>
-<p>First I will see which features in the dataset have the highest correlation with "Age".</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()[</span><span class="s1">&#39;Age&#39;</span><span class="p">])</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Survived       -0.077221
-Pclass         -0.369226
-Sex             0.093254
-Age             1.000000
-SibSp          -0.308247
-Parch          -0.189119
-Fare            0.096067
-Embarked        0.010171
-Cabin_Record    0.249732
-Age_Record           NaN
-Family_Size    -0.301914
-Title          -0.510098
-Name: Age, dtype: float64
-</pre></div>
-
-
-<p>It is clear that "Title" has the highest corrleation, followed by "Pclass" and "Family_Size".</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Pclass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Pclass&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>       Title        Age  Survived
-Title                            
-1         20  46.473684  0.300000
-2        128  35.873874  0.796875
-3        518  32.382206  0.156371
-4        185  21.845638  0.702703
-5         40   4.574167  0.575000
-
-        Pclass        Age  Survived
-Pclass                             
-1          216  38.233441  0.629630
-2          184  29.877630  0.472826
-3          491  25.140620  0.242363
-
-             Title        Age  Survived
-Family_Size                            
-0              537  32.220297  0.303538
-1              161  31.391511  0.552795
-2              102  26.035806  0.578431
-3               29  18.274815  0.724138
-4               15  20.818182  0.200000
-5               22  18.409091  0.136364
-6               12  15.166667  0.333333
-7                6  15.666667  0.000000
-10               7        NaN  0.000000
-</pre></div>
-
-
-<p>"Title" shows by far the highest correlation with "Age". "Pclass" does show a decent amount of difference in age between each class of passengers, with first class passengers tending to be older. "Parch" and "SibSp" each have a significant downside in that the majority of the data in each fall into a single category. While this is slightly less pronounced in "Family_Size", the first two categories have very little difference in average age and comprise the vast majority of that data.</p>
-<p>I will opt for a strategy of computing missing age data from averages using "Title" and "Pclass", which have the highest correlation with age by a large margin and have the added benefit of not creating large numbers of sub-groups when taking averages from grouped data.</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Pclass&#39;</span><span class="p">,</span> <span class="s1">&#39;Title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Age&#39;</span><span class="p">:[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;count&#39;</span><span class="p">],</span>
-                                                                   <span class="s1">&#39;Survived&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>                    Age        Survived
-                   mean count      mean
-Pclass Title                           
-1      1      49.727273    11  0.500000
-       2      40.405405    37  0.977778
-       3      41.539773    88  0.342593
-       4      29.744681    47  0.958333
-       5       5.306667     3  1.000000
-2      1      42.000000     8  0.000000
-       2      33.682927    41  0.902439
-       3      32.768293    82  0.087912
-       4      22.560606    33  0.942857
-       5       2.258889     9  1.000000
-3      2      33.515152    33  0.500000
-       3      28.724891   229  0.112853
-       4      16.123188    69  0.500000
-       5       5.350833    24  0.392857
-</pre></div>
-
-
-<p>It is readily apparent that there is significant variation in age between each group. While it appears that some groups are still relatively large, there appears to be a larger deviation in the ages and survival rates between them. This seems to indicate that filling in the missing ages using these groups might improve our prediction.</p>
-<h4>Impute mean ages</h4>
-<p>One potential pitfall to keep in mind while doing this is that the smaller the subgroups get, the higher the likelihood they might be composed entirely of NaN values and would cause some age data to remain missing. In case I want to experiment with adding any additional sub-groups to aid in imputing missing "Age" data in the future, I'll write the code to impute the missing ages for the smallest subgroups, then moves up the hierarchy of groups until it's imputing from the most inclusive.</p>
-<div class="highlight"><pre><span></span><span class="n">index_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Pclass&#39;</span><span class="p">,</span> <span class="s1">&#39;Title&#39;</span><span class="p">]</span>
-<span class="n">index_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">end_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">index_length</span> <span class="o">-</span> <span class="n">end_index</span><span class="p">])[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span>\
-                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-    <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">index_length</span> <span class="o">-</span> <span class="n">end_index</span><span class="p">])[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span>\
-                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">drop_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">,</span> <span class="s1">&#39;Ticket&#39;</span><span class="p">]</span>
-<span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-Int64Index: 891 entries, 1 to 891
-Data columns (total 12 columns):
-Survived        891 non-null int64
-Pclass          891 non-null int64
-Sex             891 non-null int64
-Age             891 non-null float32
-SibSp           891 non-null int64
-Parch           891 non-null int64
-Fare            891 non-null float64
-Embarked        891 non-null int64
-Cabin_Record    891 non-null int64
-Age_Record      891 non-null int64
-Family_Size     891 non-null int64
-Title           891 non-null int64
-dtypes: float32(1), float64(1), int64(10)
-memory usage: 127.0 KB
-</pre></div>
-
-
-<h2>Test Algorithms for Best Prediction</h2>
-<ol>
-<li>Make a test run of XGBoost and Random Forest classifiers to see which makes the most accurate predictions.</li><br>
-<li>Use the results of this test run to eliminate the least useful features in the dataset, if necessary.</li><br>
-<li>If the performance of the classifiers is similar:</li>
-    <ol>
-    <li>Refine the tuning of each classifier</li>
-    <li>Compare the predictions of the re-tuned classifiers</li>
-    <li>Select the classifier that consistently makes the most accurate predictions from test data</li>
-    </ol><br>
-<li>Deploy the best algorithm and evalute the results (in this case, run it against the full set of test data and submit the results to the Kaggle competition).</li>
-</ol>
-
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
-
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
-<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span><span class="p">,</span> <span class="n">LinearSVC</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
-<span class="kn">from</span> <span class="nn">xgboost</span> <span class="kn">import</span> <span class="n">XGBClassifier</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">display_scores</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="s1">&#39; Scores:&#39;</span><span class="p">,</span> <span class="n">scores</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Mean:&#39;</span><span class="p">,</span> <span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Standard Deviation&#39;</span><span class="p">,</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">X_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Survived&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span>
-
-<span class="n">x_test</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-
-<span class="n">xgb_try</span> <span class="o">=</span> <span class="n">XGBClassifier</span><span class="p">()</span>
-<span class="n">rfc_try</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">()</span>
-
-<span class="n">clf_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">xgb_try</span><span class="p">,</span> <span class="n">rfc_try</span><span class="p">]</span>
-
-<span class="n">clf_name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">,</span> <span class="s1">&#39;Random Forest&#39;</span><span class="p">]</span>
-
-
-<span class="n">clf_score_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">clf_features_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">clf</span> <span class="ow">in</span> <span class="n">clf_list</span><span class="p">:</span>
-    <span class="n">clf_name</span> <span class="o">=</span> <span class="n">clf_name_list</span><span class="p">[</span><span class="n">clf_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">clf</span><span class="p">)]</span>
-    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">clf_scores</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">clf_score_dict</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clf_scores</span><span class="p">)</span>
-    <span class="n">display_scores</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">clf_scores</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">clf_name</span> <span class="ow">in</span> <span class="n">clf_name_list</span><span class="p">:</span>
-        <span class="n">clf_features_dict</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>XGBClassifier(base_score=0.5, booster=&#39;gbtree&#39;, colsample_bylevel=1,
-       colsample_bytree=1, gamma=0, learning_rate=0.1, max_delta_step=0,
-       max_depth=3, min_child_weight=1, missing=None, n_estimators=100,
-       n_jobs=1, nthread=None, objective=&#39;binary:logistic&#39;, random_state=0,
-       reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=None,
-       silent=True, subsample=1)  Scores: [ 81.11111111  81.11111111  77.52808989  88.76404494  91.01123596
-  83.14606742  83.14606742  78.65168539  84.26966292  85.22727273]
-Mean: 83.3966348882
-Standard Deviation 3.98034954593
-
-RandomForestClassifier(bootstrap=True, class_weight=None, criterion=&#39;gini&#39;,
-            max_depth=None, max_features=&#39;auto&#39;, max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=1, min_samples_split=2,
-            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
-            oob_score=False, random_state=None, verbose=0,
-            warm_start=False)  Scores: [ 76.66666667  77.77777778  76.40449438  86.51685393  83.14606742
-  85.39325843  82.02247191  75.28089888  83.14606742  89.77272727]
-Mean: 81.6127284077
-Standard Deviation 4.64958839675
-</pre></div>
-
-
-<p>While the above is a thorough textual representation of how each classifier performs, it can be a lot to parse, so I'm going to translate this to a visual format.</p>
-<div class="highlight"><pre><span></span><span class="n">clf_score_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">clf_score_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
-
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">clf_score_df</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">clf_score_df</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_53_0.png"></p>
-<p>Gradient Boosting appears to have a slight edge over Random Forest, and it seems to perform more consistently, but performing a thorough grid search on the parameters of each will tell us for certain.</p>
-<div class="highlight"><pre><span></span><span class="n">clf_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">clf_features_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
-<span class="n">clf_features_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
-<span class="n">clf_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">clf_features_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>  
-                          <span class="n">id_vars</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span>
-                          <span class="n">var_name</span> <span class="o">=</span> <span class="s1">&#39;feature&#39;</span><span class="p">,</span>
-                          <span class="n">value_name</span> <span class="o">=</span> <span class="s1">&#39;importance&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;importance&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;importance&#39;</span><span class="p">])</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;importance&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;RdBu&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">clf_features_df</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_56_0.png"></p>
-<p>This reveals that we can drop "Age_Record", as neither algorithm is making much use of it. Everything on the graph to the left of "Pclass" could be a candidate from dropping to possibly improve accuracy, but first I will drop "Age_Record", "Cabin_Record", and "Embarked" tune each algorithm, and evaluate the results.</p>
-<div class="highlight"><pre><span></span><span class="n">drop_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Age_Record&#39;</span><span class="p">,</span> <span class="s1">&#39;Cabin_Record&#39;</span><span class="p">,</span> <span class="s1">&#39;Embarked&#39;</span><span class="p">]</span>
-<span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBClassifier</span><span class="p">()</span>
-<span class="n">rfc</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">()</span>
-
-<span class="n">clf_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">xgb</span><span class="p">,</span> <span class="n">rfc</span><span class="p">]</span>
-<span class="n">clf_name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">,</span> <span class="s1">&#39;Random Forest&#39;</span><span class="p">]</span>
-
-
-<span class="n">xgb_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">],</span>
-              <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
-              <span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
-              <span class="s1">&#39;min_child_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
-              <span class="s1">&#39;gamma&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
-              <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">77</span><span class="p">]}</span>
-
-
-<span class="n">rfc_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">750</span><span class="p">,</span> <span class="mi">1000</span><span class="p">],</span>
-              <span class="s1">&#39;max_features&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
-              <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-              <span class="s1">&#39;min_samples_leaf&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
-              <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">77</span><span class="p">]</span>
-             <span class="p">}</span>
-
-
-<span class="n">cv_res</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">)</span>
-<span class="n">clf_best</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">clf</span> <span class="ow">in</span> <span class="n">clf_list</span><span class="p">:</span>
-    <span class="n">clf_name</span> <span class="o">=</span> <span class="n">clf_name_list</span><span class="p">[</span><span class="n">clf_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">clf</span><span class="p">)]</span>
-    <span class="k">if</span> <span class="n">clf_name</span> <span class="o">==</span> <span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">:</span>
-        <span class="n">param_grid</span> <span class="o">=</span> <span class="n">xgb_params</span>
-    <span class="k">elif</span> <span class="n">clf_name</span> <span class="o">==</span> <span class="s1">&#39;Random Forest&#39;</span><span class="p">:</span>
-        <span class="n">param_grid</span> <span class="o">=</span> <span class="n">rfc_params</span>
-
-    <span class="n">clf_gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
-                                      <span class="n">return_train_score</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">clf_gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-
-    <span class="n">clf_best</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_estimator_</span>
-    <span class="n">cv_res</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">cv_results_</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Best score: &#39;</span><span class="p">,</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_score_</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Using parameters: &#39;</span><span class="p">,</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_params_</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Fully described by: &#39;</span><span class="p">,</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_estimator_</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Best score:  84.3995510662
-
-Using parameters:  {&#39;gamma&#39;: 1, &#39;learning_rate&#39;: 0.1, &#39;max_depth&#39;: 9, &#39;min_child_weight&#39;: 4, &#39;n_estimators&#39;: 25, &#39;random_state&#39;: 77}
-
-Fully described by:  XGBClassifier(base_score=0.5, booster=&#39;gbtree&#39;, colsample_bylevel=1,
-       colsample_bytree=1, gamma=1, learning_rate=0.1, max_delta_step=0,
-       max_depth=9, min_child_weight=4, missing=None, n_estimators=25,
-       n_jobs=1, nthread=None, objective=&#39;binary:logistic&#39;,
-       random_state=77, reg_alpha=0, reg_lambda=1, scale_pos_weight=1,
-       seed=None, silent=True, subsample=1)
-
-Best score:  83.950617284
-
-Using parameters:  {&#39;max_depth&#39;: 15, &#39;max_features&#39;: 0.8, &#39;min_samples_leaf&#39;: 4, &#39;n_estimators&#39;: 1000, &#39;random_state&#39;: 77}
-
-Fully described by:  RandomForestClassifier(bootstrap=True, class_weight=None, criterion=&#39;gini&#39;,
-            max_depth=15, max_features=0.8, max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=4, min_samples_split=2,
-            min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=1,
-            oob_score=False, random_state=77, verbose=0, warm_start=False)
-</pre></div>
-
-
-<p>I can now use the GridSearch results from from the above to investigate if any further fine tuning of parameters is likely to be beneficial for either classifier.</p>
-<div class="highlight"><pre><span></span><span class="n">df_xgb_cvres</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cv_res</span><span class="p">[</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">])</span>
-<span class="n">df_rfc_cvres</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cv_res</span><span class="p">[</span><span class="s1">&#39;Random Forest&#39;</span><span class="p">])</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-
-<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">ax5</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-
-<span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">ax4</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">ax5</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_gamma&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_min_child_weight&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_learning_rate&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_max_depth&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_n_estimators&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax5</span><span class="p">)</span>
-
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_62_0.png"></p>
-<p>The best parameters returned by the CVGrid, for the random state assiged, were 'gamma': 1, 'learning_rate': 0.1, 'max_depth': 9, 'min_child_weight': 4, 'n_estimators': 25.</p>
-<p>Each of the plots above appears to contain the peak value for each parameter, and it does not seems that much would be added by exploring additional parameters at either end of the range. However, it appears that the best parameters returned by CVGrid could benefit from some further tuning. I will explore this below.</p>
-<ul>
-<li>Mean test scores at a gamma value of 0 is highly inconsistent, while they are much more consistent at a value of 5. Retaining a value of 1 would likely result in a lot of variation in accuracy when applying this classifier to new data.</li>
-<li>The minimum child weight clearly peaks at 4, though values of 2 and 3 are worth considering due to their higher degree of consistency. At a value of 1 the algorithm is not conservative enough and likely overfits the training data. At a value of 5 it is overly conservative and loses a significant amount of accuracy.</li>
-<li>Going from a learning weight of 0.1 to 0.2, there is some increase in mean test score values, though the top of its range in slightly lower. It might be worth exploring values that are slightly higher.</li>
-<li>While the highest test scores for maximum depth of 12 are higher than those for values of 7 and 9, the difference is not very significant, and there is slightly more variation within scores for this value. Since increases in maximum depth contributes to overfitting, the increased variation in test values observed at a value of 12 indicates that increasing the value further will likely result in overfitting. It appears that a value of 5 yields greater consistency with a mean test score that is roughly the same.</li>
-<li>Mean test scores appear to increase with the number of estimators, but accuracy seems to level off above a number of 100. This indicates that increases in amount of computation time may not be very useful above this level.</li></ul>
-
-<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-
-<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-<span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">ax4</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_min_samples_leaf&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_max_features&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_max_depth&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_n_estimators&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_64_0.png"></p>
-<p>The best parameters returned by the CVGrid, for the random state assiged, were 'min_samples_leaf': 4, 'max_features': .8, 'max_depth': 15, 'n_estimators': 1000.</p>
-<p>As with the gradient boosting classifier, each of the plots above appears to likely contain the peak value for each parameter, and it does not seems that much would be added by exploring additional parameters at either end of the range. There are a couple of parameters that appear as if they would benefit from further tuning. I will explore this below.</p>
-<ul>
-<li>The minimum samples per leaf clearly peaks at 8. A value of 4 yields similar mean test scores, but with a much lower precision. For more consistent results when presented with new data, a value of 8 here would be best.</li>
-<li>When the maximum number of features is 80% of those in the data set, the highest test scores return tend to be higher, but with a large cost to precision. The mean result with trees utilizing 40% of the features is higher, and the mean test score results are more consistent.</li>
-<li>As with gradient boosting, increasing the maximum depth decreases precision dramatically. Exploring values below 15 might be beneficial.</li>
-<li>Mean test scores appear to increase with the number of estimators. Exploring numbers above 1000 might be beneficial, but any increase in accuracy above this would result in a significant investment of processing time.</li></ul>
-
-<p>Further tuning to these algorithms yields a result that is in the top 5% of Kaggle.com submissions. Continue from here to discover which yields a better final score! Is it possibile to engineer additional features that might increase the score further?</p>
 		</div> <!--/#entry-content-->
     		<span class="tag-links"><strong>Tagged</strong>
- <a href="/tag/data-analysis.html" rel="tag">data analysis</a>,  <a href="/tag/kaggle.html" rel="tag">Kaggle</a>,  <a href="/tag/titanic.html" rel="tag">Titanic</a>    		</span>
+ <a href="/tag/beautifulsoup.html" rel="tag">BeautifulSoup</a>,  <a href="/tag/fact-checking.html" rel="tag">fact checking</a>,  <a href="/tag/politifactcom.html" rel="tag">Politifact.com</a>,  <a href="/tag/trump.html" rel="tag">Trump</a>,  <a href="/tag/tutorial.html" rel="tag">tutorial</a>,  <a href="/tag/web-scraping.html" rel="tag">web scraping</a>    		</span>
 	</div> <!--/#main-->
 </div>  <!--/#post--><div class="navigation">
+		<div class="nav-next"><a href="/author/william-miller2.html" >Older posts <span class="meta-nav">&rarr;</span></a></div>
 </div>
 		</div>
 
