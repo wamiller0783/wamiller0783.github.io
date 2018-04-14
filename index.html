@@ -133,7 +133,7 @@
 
 
 <h4>Retrieve number of pages per person for URL lookup</h4>
-<p>At this point, we need to delve into the HTML data on page 1 for at least a couple of the people we're retrieving data on, with the aim of writing code to scrape the total number of pages of fact-checks each person has. This will prevent us from having to manually enter this number for each person, and manually update that number any time we wish to run this code again that the number of pages may have changed.</p>
+<p>At this point, I need to delve into the HTML data on page 1 for at least a couple of the people I'm retrieving data on, with the aim of writing code to scrape the total number of pages of fact-checks each person has. This will prevent me from having to manually enter this number for each person, and manually update that number any time we wish to run this code again that the number of pages may have changed.</p>
 <p>I start by pulling the HTML source from page 1 for each person. Looking at one of these webpages in my browser, at the bottom of the screen I can see the text "Page 1 of ??" on the bottom of it, and it's a safe bet that is encoded in the HTML and can be retrieved using BeautifulSoup. Looking at the HTML data from page directly (it's easiest to visit the URL in a browser, right-click, and then hit "View Page Source"), and searching for that text, I find that it is contained in a tag "step-links__current". Searching for this, I can find that there are two instance of this per page. Checking other pages, I find that this is consistently the case.</p>
 <p>The plan therefore becomes the following:
 <ol>
@@ -192,7 +192,7 @@ step 7 of 7
 
 
 <h4>Generate URL list</h4>
-<p>We now have everything we need to generate a list of URLs for each person in the list. We can now iterate through each key (politician name) in the dictionary, retrieve the URL-formatted name and the number of pages for each person, and then generate a list of URLs from that info. I will store the URLs in the same person_lookup_dict that the other data is stored in, just to keep it all consistent and neat.</p>
+<p>I now have everything we need to generate a list of URLs for each person in the list. I can now iterate through each key (politician name) in the dictionary, retrieve the URL-formatted name and the number of pages for each person, and then generate a list of URLs from that info. I will store the URLs in the same person_lookup_dict that the other data is stored in, just to keep it all consistent and neat.</p>
 <div class="highlight"><pre><span></span><span class="c1"># For each key in person_lookup_dict, retrieve that data to build correct URLs, then build URLs.</span>
 <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
     <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
