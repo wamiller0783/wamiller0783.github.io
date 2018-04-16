@@ -59,7 +59,9 @@
 <li>It is highly likely in any web scraping project is going to require searching or processing text using regular expressions, so importing the "re" library is also necessary.</li>
 <li>Any time I am requesting lot of data from a website, it is necessary to space out the requests you are making in order to avoid looking like I'm instigating a DDoS attack, getting my IP address banned temporarily. I will import the sleep function from the "time" library and "randint" from "random" to let me wait for random time intervals between requests.</li>
 <li>As with basically any data project, it is very likely, if not definite, that I will need functions from the "pandas" and "numpy" libraries. I will go ahead and import both.</li>
-<li>While this is specific to this particular project, I know that I will be parsing some dates as a part of this, so I will go ahead and load the "parser" function from the "dateutil" library. </li></ul></p>
+<li>While this is specific to this particular project, I know that I will be parsing some dates as a part of this, so I will go ahead and load the "parser" function from the "dateutil" library. </li>
+<li>Another library I'm importing that's not always necessary is "sys" for the "stdout.write" function. This is due to a quirk of Jupyter notebooks which will not execute a carriage return ('\r') within a print statement. I'm just using this for the sake of convenience, in that I wish to make a progress tracking function that will not gradually fill my screen with progress statements, but will instead overwrite the last progress statement.</li>
+</ul></p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -71,38 +73,39 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 </pre></div>
 
 
 <h4>Function to show progress</h4>
-<p>I mentioned above that we will be retrieving a lot of data from a specific website, waiting random amounts of time between requests. This means that there will be a fair amount of waiting time involved in this progress as we step through lists of URLs to retrieve our data. Because of this, I'm going to set up a quick progress-tracking function. It simply takes a list and an element in that list as input, and prints the number of the element entered compared to the whole. For instance if I passed in "c" and "[a,b,c,d,e]" this function will print "step 3 of 5". This gives a rough idea of how long the scraping process will take and lets me know it's doing something.</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">whole</span><span class="p">):</span>
+<p>I mentioned above that I will be retrieving a lot of data from a specific website, waiting random amounts of time between requests. This means that there will be a fair amount of waiting time involved in this progress as I step through lists of URLs to retrieve our data. Because of this, I'm going to set up a quick progress-tracking function. It simply takes a list and an element in that list as input, and prints the number of the element entered compared to the whole. For instance if I passed in "c" and "[a,b,c,d,e], this function will print "3 of 5". This give a rough idea of how long the scraping process will take and lets us know it's doing something.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">whole</span><span class="p">,</span> <span class="n">addstr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Inputs:</span>
+<span class="sd">    Input:</span>
 <span class="sd">    part = element of list</span>
 <span class="sd">    whole = list</span>
 <span class="sd">    ---------</span>
 <span class="sd">    Function:</span>
-<span class="sd">    Print the number of element &quot;part&quot; is within &quot;whole&quot;</span>
+<span class="sd">    Find the number of element &quot;part&quot; is within &quot;whole&quot;</span>
 <span class="sd">    ---------</span>
 <span class="sd">    Output:</span>
-<span class="sd">    None</span>
+<span class="sd">    Return the string &quot;[nth list element] of [list length]&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">whole</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">progress</span> <span class="o">=</span> <span class="s2">&quot;step &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">progress</span>
 </pre></div>
 
 
 <h4>Recognize and exploit patterns in URLs</h4>
 <p>At this point, I had to go through a process I cannot really show here. I went to Politifact website and viewed which contemporary politicians had fact checking data on their website, and I selected a few of these. I then investigated how to get total number of fact checks for each person, and looked for patterns in the URLs I would need to request.</p>
 <p>For instance, I noticed if I clicked on "personalities", then "Donald Trump", and then selected "See all" for statements by Trump, it returned 28 pages of fact checks. I noticed that clicking through these pages returned different URLs, so page 3 had a URL of "http://www.politifact.com/personalities/donald-trump/statements/?page=3&amp;list=speaker". I ensured that I could plug in any page number to the right of "page=", and it would go to that page.</p>
-<p>Looking at other politicians, I noticed that their fact-check pages followed the same convention regarding their names, where Donald Trump's page contained "personalities/donald-trump", Barack Obama's page contained "personalities/barack-obama". "Firstname Lastname" was consistently formatted as "firstname-lastname". We can combine this information with the above to return a complete list of fact-checks for any politician listed on PolitiFact.</p>
+<p>Looking at other politicians, I noticed that their fact-check pages followed the same convention regarding their names, where Donald Trump's page contained "personalities/donald-trump", Barack Obama's page contained "personalities/barack-obama". "Firstname Lastname" was consistently formatted as "firstname-lastname". I can combine this information with the above to return a complete list of fact-checks for any politician listed on PolitiFact.</p>
 <h4>Format politican names for URLs, set up URL lookup data organization</h4>
 <p>To use this info, I will make a list of the names of the politician's I want ratings from. My aim is to do this in such a way that I could add any name of any person with fact checks on PolitiFact, and it will retrieve the data on them. I will then write some code to format that list in accordance with that URL name convention I mentioned.</p>
 <p>One thing that can be immensely useful in any data scraping project is to set up a dictionary to store information in based on what you're looking up. I will therefore create the dictionary "person_lookup_dict" with each politican's name as the key. I will then initialize a dictionary stored under each of their names that I can the url-formatted names to. Later, I will add additional lookup-related information to this dictionary.</p>
-<p>While it can be somewhat trickier at times to add and retrieve information from a dictionary rather than a bunch of separate lists, this will help immensely to keep all of the information we need to use retrieve the correct URLs organized. It will also help ensure that I can add names to the list of people whose fact-check data I wish to retrieve without modifying my code.</p>
+<p>While it can be somewhat trickier at times to add and retrieve information from a dictionary rather than a bunch of separate lists, this will help immensely to keep all of the information I need to use retrieve the correct URLs organized. It will also help ensure that I can add names to the list of people whose fact-check data I wish to retrieve without modifying my code.</p>
 <div class="highlight"><pre><span></span><span class="c1"># People to retrieve fact check data for from PolitiFact.com.</span>
 <span class="n">person_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Donald Trump&#39;</span><span class="p">,</span> <span class="s1">&#39;Barack Obama&#39;</span><span class="p">,</span> <span class="s1">&#39;Mike Pence&#39;</span><span class="p">,</span> <span class="s1">&#39;Paul Ryan&#39;</span><span class="p">,</span>
                <span class="s1">&#39;Nancy Pelosi&#39;</span><span class="p">,</span> <span class="s1">&#39;Mitch McConnell&#39;</span><span class="p">,</span> <span class="s1">&#39;Charles Schumer&#39;</span><span class="p">]</span>
@@ -133,7 +136,7 @@
 
 
 <h4>Retrieve number of pages per person for URL lookup</h4>
-<p>At this point, I need to delve into the HTML data on page 1 for at least a couple of the people I'm retrieving data on, with the aim of writing code to scrape the total number of pages of fact-checks each person has. This will prevent me from having to manually enter this number for each person, and manually update that number any time we wish to run this code again that the number of pages may have changed.</p>
+<p>At this point, I need to delve into the HTML data on page 1 for at least a couple of the people I'm retrieving data on, with the aim of writing code to scrape the total number of pages of fact-checks each person has. This will prevent me from having to manually enter this number for each person, and manually update that number any time I wish to run this code again that the number of pages may have changed.</p>
 <p>I start by pulling the HTML source from page 1 for each person. Looking at one of these webpages in my browser, at the bottom of the screen I can see the text "Page 1 of ??" on the bottom of it, and it's a safe bet that is encoded in the HTML and can be retrieved using BeautifulSoup. Looking at the HTML data from page directly (it's easiest to visit the URL in a browser, right-click, and then hit "View Page Source"), and searching for that text, I find that it is contained in a tag "step-links__current". Searching for this, I can find that there are two instance of this per page. Checking other pages, I find that this is consistently the case.</p>
 <p>The plan therefore becomes the following:
 <ol>
@@ -162,21 +165,14 @@
     <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlpages&#39;</span><span class="p">]</span><span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_page_sub_str</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 
     <span class="c1"># Show progress.</span>
-    <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">person_lookup_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>    
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="o">+</span> <span class="s1">&#39;step &#39;</span> <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">person_lookup_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>    
 
 <span class="c1"># Show results.</span>
 <span class="n">person_lookup_dict</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>step 1 of 7
-step 2 of 7
-step 3 of 7
-step 4 of 7
-step 5 of 7
-step 6 of 7
-step 7 of 7
-
+<div class="highlight"><pre><span></span>step 7 of 7
 
 
 
@@ -192,7 +188,7 @@ step 7 of 7
 
 
 <h4>Generate URL list</h4>
-<p>I now have everything we need to generate a list of URLs for each person in the list. I can now iterate through each key (politician name) in the dictionary, retrieve the URL-formatted name and the number of pages for each person, and then generate a list of URLs from that info. I will store the URLs in the same person_lookup_dict that the other data is stored in, just to keep it all consistent and neat.</p>
+<p>I now have everything I need to generate a list of URLs for each person in the list. I can now iterate through each key (politician name) in the dictionary, retrieve the URL-formatted name and the number of pages for each person, and then generate a list of URLs from that info. I will store the URLs in the same person_lookup_dict that the other data is stored in, just to keep it all consistent and neat.</p>
 <div class="highlight"><pre><span></span><span class="c1"># For each key in person_lookup_dict, retrieve that data to build correct URLs, then build URLs.</span>
 <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
     <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -299,12 +295,12 @@ step 7 of 7
 
 
 <h4>Retrieve and parse data</h4>
-<p>Here is the real substance to what we are doing. For the sake of organization, I created a function that parses the data I want to retrieve from the HTML I requested using the generated URLs. This part of the process involves more HTML investigation like that done for finding the page number data above, except here I'm looking for tags that allow be to locate the date a statement was made, the text of that statement, and the truth-rating assigned to it.</p>
+<p>Here is the real substance to what I'm doing. For the sake of organization, I created a function that parses the data I want to retrieve from the HTML I requested using the generated URLs. This part of the process involves more HTML investigation like that done for finding the page number data above, except here I'm looking for tags that allow be to locate the date a statement was made, the text of that statement, and the truth-rating assigned to it.</p>
 <p>I found that the tag "class_='statement__source'" containing the politician's name (the version in the list prior to URL formatting) contained all the data I was look for. Below, I put the HTML containing that data into a list with each statement as an element. I then pass that list to a function that steps through it, scrapes the data I want, and appends only that data to a dictionary (truth_data).</p>
 <div class="highlight"><pre><span></span><span class="c1"># See code below before parsing function code.</span>
 <span class="k">def</span> <span class="nf">truth_extractor</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">fact_checks</span><span class="p">,</span> <span class="n">truth_data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Inputs:</span>
+<span class="sd">    Input:</span>
 <span class="sd">    person = Name of person making the statement in question.</span>
 
 <span class="sd">    fact-checks = list of HTML elements containing that fact-check data to be scraped</span>
@@ -356,8 +352,6 @@ step 7 of 7
 
 <span class="c1"># for each item in the list, return the HTML element containing the data I wish to scrape.</span>
 <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_list</span><span class="p">:</span>
-    <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">person_list</span><span class="p">)</span>
-
     <span class="c1"># Retrieve the list of URLs generated earlier of each person in the list</span>
     <span class="n">url_list</span> <span class="o">=</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span>
 
@@ -376,14 +370,23 @@ step 7 of 7
         <span class="c1"># Parse the HTML using BeatifulSoup.</span>
         <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Save the elements containing the desired data to a list.</span>
-        <span class="n">fact_checks</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__source&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;In Politifact.com HTML tags Nancy Pelosi&#39;s name is formatted with two spaces between &quot;Nancy&quot; and &quot;Pelosi&quot;.</span>
+<span class="sd">        Because of this, I had to create a special case when searching for statements made by her.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">person</span> <span class="o">==</span> <span class="s1">&#39;Nancy Pelosi&#39;</span><span class="p">:</span>
+            <span class="n">fact_checks</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__source&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Nancy  Pelosi&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fact_checks</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__source&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
 
         <span class="c1"># Pass that list to the fuction &quot;truth_extractor&quot;.</span>
         <span class="n">truth_extractor</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">fact_checks</span><span class="p">,</span> <span class="n">truth_data</span><span class="p">)</span>   
 
         <span class="c1"># Show progress.</span>
-        <span class="n">show_progress</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">url_list</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="o">+</span> <span class="s1">&#39;step &#39;</span> <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">person_list</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, substep: &#39;</span>\
+                         <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">url_list</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;         &#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>step 7 of 7, substep: 1 of 1
 </pre></div>
 
 
@@ -638,210 +641,210 @@ step 7 of 7
       <td>...</td>
     </tr>
     <tr>
-      <th>1321</th>
+      <th>1359</th>
       <td>2013-05-28</td>
       <td>Mitch McConnell</td>
       <td>\n\r\n\tSays Health and Human Services Secreta...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1322</th>
+      <th>1360</th>
       <td>2010-06-14</td>
       <td>Mitch McConnell</td>
       <td>\n"A major part" of the climate change bill sp...</td>
       <td>False</td>
     </tr>
     <tr>
-      <th>1323</th>
+      <th>1361</th>
       <td>2010-04-20</td>
       <td>Mitch McConnell</td>
       <td>\nNew financial regulation "actually guarantee...</td>
       <td>False</td>
     </tr>
     <tr>
-      <th>1324</th>
+      <th>1362</th>
       <td>2010-02-19</td>
       <td>Mitch McConnell</td>
       <td>\nThe stimulus includes  "$219,000 to study  t...</td>
       <td>Half-True</td>
     </tr>
     <tr>
-      <th>1325</th>
+      <th>1363</th>
       <td>2010-02-19</td>
       <td>Mitch McConnell</td>
       <td>\n"$100,000 in  stimulus funds (were) used for...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1326</th>
+      <th>1364</th>
       <td>2010-02-01</td>
       <td>Mitch McConnell</td>
       <td>\nOn a bipartisan task force on ways to improv...</td>
       <td>Full Flop</td>
     </tr>
     <tr>
-      <th>1327</th>
+      <th>1365</th>
       <td>2009-12-02</td>
       <td>Mitch McConnell</td>
       <td>\nThe Senate health care bill does not contain...</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>1328</th>
+      <th>1366</th>
       <td>2009-06-01</td>
       <td>Mitch McConnell</td>
       <td>\n"The Department of Justice, under the Obama ...</td>
       <td>Half-True</td>
     </tr>
     <tr>
-      <th>1329</th>
+      <th>1367</th>
       <td>2009-05-19</td>
       <td>Mitch McConnell</td>
       <td>\nA public option for health care would end pr...</td>
       <td>Mostly False</td>
     </tr>
     <tr>
-      <th>1330</th>
+      <th>1368</th>
       <td>2009-03-03</td>
       <td>Mitch McConnell</td>
       <td>\n"In just one month, the Democrats have spent...</td>
       <td>False</td>
     </tr>
     <tr>
-      <th>1331</th>
+      <th>1369</th>
       <td>2009-02-03</td>
       <td>Mitch McConnell</td>
       <td>\n To give the proposed economic stimulus plan...</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>1332</th>
+      <th>1370</th>
       <td>2009-01-05</td>
       <td>Mitch McConnell</td>
       <td>\nIf Obama's economic plan creates 600,000 new...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1333</th>
+      <th>1371</th>
       <td>2017-03-27</td>
       <td>Charles Schumer</td>
       <td>\n"In fact, if you add up the net wealth of hi...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1334</th>
+      <th>1372</th>
       <td>2017-10-08</td>
       <td>Charles Schumer</td>
       <td>\nTrump’s tax plan is "completely focused on t...</td>
       <td>False</td>
     </tr>
     <tr>
-      <th>1335</th>
+      <th>1373</th>
       <td>2017-10-06</td>
       <td>Charles Schumer</td>
       <td>\n"The Republicans are proposing to pay for th...</td>
       <td>Half-True</td>
     </tr>
     <tr>
-      <th>1336</th>
+      <th>1374</th>
       <td>2017-07-25</td>
       <td>Charles Schumer</td>
       <td>\n"When the price for oil goes up on the marke...</td>
       <td>False</td>
     </tr>
     <tr>
-      <th>1337</th>
+      <th>1375</th>
       <td>2017-05-18</td>
       <td>Charles Schumer</td>
       <td>\n"President Obama became the first president ...</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>1338</th>
+      <th>1376</th>
       <td>2017-03-27</td>
       <td>Charles Schumer</td>
       <td>\n"In fact, if you add up the net wealth of hi...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1339</th>
+      <th>1377</th>
       <td>2017-01-27</td>
       <td>Charles Schumer</td>
       <td>\nSays Rex "Tillerson won't divest from Exxon....</td>
       <td>Pants on Fire!</td>
     </tr>
     <tr>
-      <th>1340</th>
+      <th>1378</th>
       <td>2017-01-10</td>
       <td>Charles Schumer</td>
       <td>\nSays Donald Trump campaigned on not cutting ...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1341</th>
+      <th>1379</th>
       <td>2016-06-15</td>
       <td>Charles Schumer</td>
       <td>\nLast year, "244 suspected terrorists walked ...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1342</th>
+      <th>1380</th>
       <td>2015-05-18</td>
       <td>Charles Schumer</td>
       <td>\n"It is simply a fact that insufficient fundi...</td>
       <td>Half-True</td>
     </tr>
     <tr>
-      <th>1343</th>
+      <th>1381</th>
       <td>2015-03-08</td>
       <td>Charles Schumer</td>
       <td>\n\r\n"The State Department asked all secretar...</td>
       <td>Mostly False</td>
     </tr>
     <tr>
-      <th>1344</th>
+      <th>1382</th>
       <td>2014-12-04</td>
       <td>Charles Schumer</td>
       <td>\nIn 2010, uninsured voters made up "about 5 p...</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>1345</th>
+      <th>1383</th>
       <td>2014-05-08</td>
       <td>Charles Schumer</td>
       <td>\nIf you work 40 hours a week at the proposed ...</td>
       <td>Half-True</td>
     </tr>
     <tr>
-      <th>1346</th>
+      <th>1384</th>
       <td>2013-10-08</td>
       <td>Charles Schumer</td>
       <td>\nBecause of the 2011 debt ceiling fight, "the...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1347</th>
+      <th>1385</th>
       <td>2010-08-04</td>
       <td>Charles Schumer</td>
       <td>\n\r\n\t"Eight of the nine justices in the Sup...</td>
       <td>Mostly True</td>
     </tr>
     <tr>
-      <th>1348</th>
+      <th>1386</th>
       <td>2010-04-13</td>
       <td>Charles Schumer</td>
       <td>\n"No one questioned that she (Judge Sotomayor...</td>
       <td>False</td>
     </tr>
     <tr>
-      <th>1349</th>
+      <th>1387</th>
       <td>2010-01-22</td>
       <td>Charles Schumer</td>
       <td>\n"With a stroke of a pen, the (U.S. Supreme C...</td>
       <td>Mostly False</td>
     </tr>
     <tr>
-      <th>1350</th>
+      <th>1388</th>
       <td>2009-03-12</td>
       <td>Charles Schumer</td>
       <td>\n\r\n\t"No Bridge to Nowhere could occur."\n</td>
@@ -849,7 +852,7 @@ step 7 of 7
     </tr>
   </tbody>
 </table>
-<p>1351 rows × 4 columns</p>
+<p>1389 rows × 4 columns</p>
 </div>
 
 <div class="highlight"><pre><span></span><span class="c1"># Save dataframe to CSV file.</span>
