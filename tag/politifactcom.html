@@ -1,878 +1,111 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-		<title>Epiousios &mdash; Articles tagged Politifact.com</title>
-		<meta charset="utf-8" />
-		<link rel="profile" href="http://gmpg.org/xfn/11" />
-		<link rel="stylesheet" type="text/css" href="/theme/css/style.css" />
-		<link rel='stylesheet' id='oswald-css'  href='http://fonts.googleapis.com/css?family=Oswald&#038;ver=3.3.2' type='text/css' media='all' />
-		<style type="text/css">
-			body.custom-background { background-color: #f5f5f5; }
-		</style>
-		<link rel="alternate" type="application/atom+xml"
-			title="Epiousios — Flux Atom"
-			href="/" />
-		<!--[if lte IE 8]><script src="/theme/js/html5shiv.js"></script><![endif]-->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="/theme/pygments/github.min.css">
+  <link rel="stylesheet" type="text/css" href="/theme/font-awesome/css/font-awesome.min.css">
+
+
+
+
+
+
+
+    <meta name="author" content="William Miller" />
+    <meta name="description" content="" />
+<meta property="og:site_name" content="Epiousios"/>
+<meta property="og:type" content="blog"/>
+<meta property="og:title" content="Epiousios"/>
+<meta property="og:description" content=""/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content=""/>
+
+  <title>Epiousios &ndash;     Tag Politifact.com
+</title>
+
 </head>
+<body>
+  <aside>
+    <div>
+      <a href="">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
 
-<body class="home blog custom-background " >
-	<div id="container">
-		<div id="header">
-				<h1 id="site-title"><a href="">Epiousios</a></h1>
-<h2 id="site-description">Searching for Patterns that Matter</h2>		</div><!-- /#banner -->
+<p>Searching for Patterns that Matter</p>
+      <nav>
+        <ul class="list">
 
-		<div id="menu">
-			<div class="menu-navigation-container">
-				<ul id="menu-navigation" class="menu">
-						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/machine-learning.html">Machine Learning</a></li>
-						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/web-scraping.html">Web Scraping</a></li>
-						<li  class="active" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.linkedin.com/in/william-miller-88a37b159/">My LinkedIn</a></li>
+          <li><a href="https://www.linkedin.com/in/william-miller-88a37b159/" target="_blank">My LinkedIn</a></li>
+        </ul>
+      </nav>
 
-				</ul>
-			</div> <!--/#menu-navigation-container-->
-		</div><!-- /#menu -->
+      <ul class="social">
+      </ul>
+    </div>
 
-		<div class="page-title">
-<div class="page-title">
-	<h2>Tagged with <span>Politifact.com</span> &hellip;</h2>
-</div>
-		</div>
 
-		<div id="contents">
-<div class="post type-post status-publish format-standard hentry category-general" id="post">
-	<div class="entry-meta">
-		<div class="date"><a href="/scraping-tutorial-post.html">Sat 14 April 2018</a></div>
-		<span class="byline">By <a href="/author/william-miller.html">William Miller</a></span>
-			<span class="cat-links"><a href="/category/web-scraping.html" title="View all posts in Web Scraping" rel="category tag">Web Scraping</a></span>
-	</div> <!-- /#entry-meta -->
-	<div class="main">
-		<h2 class="entry-title">
-			<a href="/scraping-tutorial-post.html" title="Permalink to Web Scraping Tutorial" rel="bookmark">Web Scraping Tutorial</a>
-		</h2>
-		<div class="entry-content">
-			<p>In preparation for a project comparing President Trump's veracity to that of contemporary U.S politicians, I have scraped some data from www.PolitiFact.com. Since this is a fairly basic data scraping project, I thought I would take a bit to make this into a tutorial on the subject. My goal here is to write some code that will:
-<ol><li> Take the name of any politician on PolitiFact.com in a list</li>
-<li>Retrieve the data from Politifact for: the date they made a statement, the text of that statement, the Politifact rating of that statement</li>
-<li>Store the resulting data in a dataframe and export to a CSV file</li>
-<ol></p>
-<h4>Libraries</h4>
-<p>First, there are several libraries that I need to import for just about any data scraping project. <ul>
-<li>"Beautiful Soup" makes navigating HTML much more convenient and is nearly indispensible for this purpose.</li>
-<li>I will be using the "get" function from the "requests" library to retrieve the HTML from specific URLs.
-<li>It is highly likely in any web scraping project is going to require searching or processing text using regular expressions, so importing the "re" library is also necessary.</li>
-<li>Any time I am requesting lot of data from a website, it is necessary to space out the requests you are making in order to avoid looking like I'm instigating a DDoS attack, getting my IP address banned temporarily. I will import the sleep function from the "time" library and "randint" from "random" to let me wait for random time intervals between requests.</li>
-<li>As with basically any data project, it is very likely, if not definite, that I will need functions from the "pandas" and "numpy" libraries. I will go ahead and import both.</li>
-<li>While this is specific to this particular project, I know that I will be parsing some dates as a part of this, so I will go ahead and load the "parser" function from the "dateutil" library. </li>
-<li>Another library I'm importing that's not always necessary is "sys" for the "stdout.write" function. This is due to a quirk of Jupyter notebooks which will not execute a carriage return ('\r') within a print statement. I'm just using this for the sake of convenience, in that I wish to make a progress tracking function that will not gradually fill my screen with progress statements, but will instead overwrite the last progress statement.</li>
-</ul></p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
-<span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">re</span>
+  </aside>
+  <main>
 
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-</pre></div>
 
+<article>
+  <header>
+    <h2><a href="/scraping-tutorial-post.html#scraping-tutorial-post">Web Scraping Tutorial</a></h2>
+    <p>
+          Posted on Sat 14 April 2018 in <a href="/category/web-scraping.html">Web Scraping</a>
 
-<h4>Function to show progress</h4>
-<p>I mentioned above that I will be retrieving a lot of data from a specific website, waiting random amounts of time between requests. This means that there will be a fair amount of waiting time involved in this progress as I step through lists of URLs to retrieve our data. Because of this, I'm going to set up a quick progress-tracking function. It simply takes a list and an element in that list as input, and prints the number of the element entered compared to the whole. For instance if I passed in "c" and "[a,b,c,d,e], this function will print "3 of 5". This give a rough idea of how long the scraping process will take and lets us know it's doing something.</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">whole</span><span class="p">,</span> <span class="n">addstr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Input:</span>
-<span class="sd">    part = element of list</span>
-<span class="sd">    whole = list</span>
-<span class="sd">    ---------</span>
-<span class="sd">    Function:</span>
-<span class="sd">    Find the number of element &quot;part&quot; is within &quot;whole&quot;</span>
-<span class="sd">    ---------</span>
-<span class="sd">    Output:</span>
-<span class="sd">    Return the string &quot;[nth list element] of [list length]&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">whole</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">progress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">progress</span>
-</pre></div>
 
+          &#8226;     Tagged with
 
-<h4>Recognize and exploit patterns in URLs</h4>
-<p>At this point, I had to go through a process I cannot really show here. I went to Politifact website and viewed which contemporary politicians had fact checking data on their website, and I selected a few of these. I then investigated how to get total number of fact checks for each person, and looked for patterns in the URLs I would need to request.</p>
-<p>For instance, I noticed if I clicked on "personalities", then "Donald Trump", and then selected "See all" for statements by Trump, it returned 28 pages of fact checks. I noticed that clicking through these pages returned different URLs, so page 3 had a URL of "http://www.politifact.com/personalities/donald-trump/statements/?page=3&amp;list=speaker". I ensured that I could plug in any page number to the right of "page=", and it would go to that page.</p>
-<p>Looking at other politicians, I noticed that their fact-check pages followed the same convention regarding their names, where Donald Trump's page contained "personalities/donald-trump", Barack Obama's page contained "personalities/barack-obama". "Firstname Lastname" was consistently formatted as "firstname-lastname". I can combine this information with the above to return a complete list of fact-checks for any politician listed on PolitiFact.</p>
-<h4>Format politican names for URLs, set up URL lookup data organization</h4>
-<p>To use this info, I will make a list of the names of the politician's I want ratings from. My aim is to do this in such a way that I could add any name of any person with fact checks on PolitiFact, and it will retrieve the data on them. I will then write some code to format that list in accordance with that URL name convention I mentioned.</p>
-<p>One thing that can be immensely useful in any data scraping project is to set up a dictionary to store information in based on what you're looking up. I will therefore create the dictionary "person_lookup_dict" with each politican's name as the key. I will then initialize a dictionary stored under each of their names that I can the url-formatted names to. Later, I will add additional lookup-related information to this dictionary.</p>
-<p>While it can be somewhat trickier at times to add and retrieve information from a dictionary rather than a bunch of separate lists, this will help immensely to keep all of the information I need to use retrieve the correct URLs organized. It will also help ensure that I can add names to the list of people whose fact-check data I wish to retrieve without modifying my code.</p>
-<div class="highlight"><pre><span></span><span class="c1"># People to retrieve fact check data for from PolitiFact.com.</span>
-<span class="n">person_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Donald Trump&#39;</span><span class="p">,</span> <span class="s1">&#39;Barack Obama&#39;</span><span class="p">,</span> <span class="s1">&#39;Mike Pence&#39;</span><span class="p">,</span> <span class="s1">&#39;Paul Ryan&#39;</span><span class="p">,</span>
-               <span class="s1">&#39;Nancy Pelosi&#39;</span><span class="p">,</span> <span class="s1">&#39;Mitch McConnell&#39;</span><span class="p">,</span> <span class="s1">&#39;Charles Schumer&#39;</span><span class="p">]</span>
+              <a href="/tag/tutorial.html">tutorial</a>,              <a href="/tag/web-scraping.html">web scraping</a>,              <a href="/tag/beautifulsoup.html">BeautifulSoup</a>,              <a href="/tag/politifactcom.html">Politifact.com</a>,              <a href="/tag/trump.html">Trump</a>,              <a href="/tag/fact-checking.html">fact checking</a>
+    </p>
+  </header>
+  <div>
+      <p>Scraping PolitiFact.com for fact check data.</p>
+      <br>
+      <a class="btn" href="/scraping-tutorial-post.html#scraping-tutorial-post">    Continue reading
+</a>
+  </div>
+</article>
 
-<span class="c1"># Initialize a dictionary with the names above as keys.</span>
-<span class="n">person_lookup_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">person_list</span><span class="p">,</span> <span class="p">{})</span>
+  <div class="pagination">
+  </div>
 
-<span class="c1"># Initialize a dictionary under each of these keys containing the URL formatting of each name.</span>
-<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
-    <span class="n">person_lookup</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="n">person_lookup</span> <span class="o">=</span> <span class="n">person_lookup</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
-    <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;urlname&#39;</span><span class="p">:</span><span class="n">person_lookup</span><span class="p">}</span>
 
-<span class="c1"># Show the result.</span>
-<span class="n">person_lookup_dict</span>
-</pre></div>
 
+    <footer>
+<p>&copy;  </p>
+<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+</p>    </footer>
+  </main>
 
-<div class="highlight"><pre><span></span>{&#39;Barack Obama&#39;: {&#39;urlname&#39;: &#39;barack-obama&#39;},
- &#39;Charles Schumer&#39;: {&#39;urlname&#39;: &#39;charles-schumer&#39;},
- &#39;Donald Trump&#39;: {&#39;urlname&#39;: &#39;donald-trump&#39;},
- &#39;Mike Pence&#39;: {&#39;urlname&#39;: &#39;mike-pence&#39;},
- &#39;Mitch McConnell&#39;: {&#39;urlname&#39;: &#39;mitch-mcconnell&#39;},
- &#39;Nancy Pelosi&#39;: {&#39;urlname&#39;: &#39;nancy-pelosi&#39;},
- &#39;Paul Ryan&#39;: {&#39;urlname&#39;: &#39;paul-ryan&#39;}}
-</pre></div>
 
 
-<h4>Retrieve number of pages per person for URL lookup</h4>
-<p>At this point, I need to delve into the HTML data on page 1 for at least a couple of the people I'm retrieving data on, with the aim of writing code to scrape the total number of pages of fact-checks each person has. This will prevent me from having to manually enter this number for each person, and manually update that number any time I wish to run this code again that the number of pages may have changed.</p>
-<p>I start by pulling the HTML source from page 1 for each person. Looking at one of these webpages in my browser, at the bottom of the screen I can see the text "Page 1 of ??" on the bottom of it, and it's a safe bet that is encoded in the HTML and can be retrieved using BeautifulSoup. Looking at the HTML data from page directly (it's easiest to visit the URL in a browser, right-click, and then hit "View Page Source"), and searching for that text, I find that it is contained in a tag "step-links__current". Searching for this, I can find that there are two instance of this per page. Checking other pages, I find that this is consistently the case.</p>
-<p>The plan therefore becomes the following:
-<ol>
-<li>Request the data for page 1 for each person in our list. (Waiting between each request.)</li>
-<li>Find the string "Page 1 of ??"</li>
-<li>Process that string to get only the integer for the maximum number of pages.</li>
-<li>Store that value for each person in the dictionary, in the dictionary under each name.</li>
-</ol></p>
-<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
-    <span class="c1"># Request data from page 1 for each person in list.</span>
-    <span class="n">person_url</span><span class="o">=</span><span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlname&#39;</span><span class="p">]</span>
-    <span class="n">start_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://www.politifact.com/personalities/&quot;</span> <span class="o">+</span> <span class="n">person_url</span> <span class="o">+</span> <span class="s2">&quot;/statements/?page=1&amp;list=speaker&quot;</span><span class="p">)</span>
-    <span class="n">start_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">start_page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Wait a random amount of time between 10 and 20 seconds.</span>
-    <span class="c1">#If an error is returned, state the status code and break the loop.</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">start_page</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;We may have a problem here.&#39;</span><span class="p">,</span> <span class="n">start_page</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
-        <span class="k">break</span>
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Epiousios ",
+  "url" : "",
+  "image": "",
+  "description": ""
+}
+</script>
 
-    <span class="c1"># Find the string &quot;Page 1 of ??&quot; (contained within tags &quot;class_=...&quot;).</span>
-    <span class="c1"># Process down to integer value of max pages.</span>
-    <span class="n">num_page_str</span> <span class="o">=</span> <span class="n">start_soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;step-links__current&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;step-links__current&quot;</span><span class="p">)</span>
-    <span class="n">num_page_sub_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;(\d+) of (\d+)&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_page_str</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
-    <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlpages&#39;</span><span class="p">]</span><span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_page_sub_str</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-
-    <span class="c1"># Show progress.</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="o">+</span> <span class="s1">&#39;step &#39;</span> <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">person_lookup_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>    
-
-<span class="c1"># Show results.</span>
-<span class="n">person_lookup_dict</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>step 7 of 7
-
-
-
-
-{&#39;Barack Obama&#39;: {&#39;urlname&#39;: &#39;barack-obama&#39;, &#39;urlpages&#39;: 31},
- &#39;Charles Schumer&#39;: {&#39;urlname&#39;: &#39;charles-schumer&#39;, &#39;urlpages&#39;: 1},
- &#39;Donald Trump&#39;: {&#39;urlname&#39;: &#39;donald-trump&#39;, &#39;urlpages&#39;: 28},
- &#39;Mike Pence&#39;: {&#39;urlname&#39;: &#39;mike-pence&#39;, &#39;urlpages&#39;: 3},
- &#39;Mitch McConnell&#39;: {&#39;urlname&#39;: &#39;mitch-mcconnell&#39;, &#39;urlpages&#39;: 2},
- &#39;Nancy Pelosi&#39;: {&#39;urlname&#39;: &#39;nancy-pelosi&#39;, &#39;urlpages&#39;: 2},
- &#39;Paul Ryan&#39;: {&#39;urlname&#39;: &#39;paul-ryan&#39;, &#39;urlpages&#39;: 5}}
-</pre></div>
-
-
-<h4>Generate URL list</h4>
-<p>I now have everything I need to generate a list of URLs for each person in the list. I can now iterate through each key (politician name) in the dictionary, retrieve the URL-formatted name and the number of pages for each person, and then generate a list of URLs from that info. I will store the URLs in the same person_lookup_dict that the other data is stored in, just to keep it all consistent and neat.</p>
-<div class="highlight"><pre><span></span><span class="c1"># For each key in person_lookup_dict, retrieve that data to build correct URLs, then build URLs.</span>
-<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_lookup_dict</span><span class="p">:</span>
-    <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">person_name_url</span> <span class="o">=</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlname&#39;</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urlpages&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.politifact.com/personalities/&quot;</span> <span class="o">+</span> <span class="n">person_name_url</span>\
-        <span class="o">+</span> <span class="s2">&quot;/statements/?page=&quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span><span class="s2">&quot;&amp;list=speaker&quot;</span>
-
-        <span class="c1"># Store URLs in person_lookup_dict.</span>
-        <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-
-<span class="c1">#Show results.</span>
-<span class="n">person_lookup_dict</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>{&#39;Barack Obama&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/barack-obama/statements/?page=1&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=2&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=3&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=4&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=5&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=6&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=7&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=8&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=9&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=10&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=11&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=12&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=13&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=14&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=15&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=16&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=17&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=18&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=19&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=20&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=21&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=22&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=23&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=24&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=25&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=26&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=27&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=28&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=29&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=30&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/barack-obama/statements/?page=31&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;barack-obama&#39;,
-  &#39;urlpages&#39;: 31},
- &#39;Charles Schumer&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/charles-schumer/statements/?page=1&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;charles-schumer&#39;,
-  &#39;urlpages&#39;: 1},
- &#39;Donald Trump&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/donald-trump/statements/?page=1&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=2&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=3&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=4&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=5&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=6&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=7&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=8&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=9&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=10&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=11&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=12&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=13&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=14&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=15&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=16&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=17&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=18&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=19&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=20&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=21&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=22&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=23&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=24&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=25&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=26&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=27&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/donald-trump/statements/?page=28&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;donald-trump&#39;,
-  &#39;urlpages&#39;: 28},
- &#39;Mike Pence&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/mike-pence/statements/?page=1&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/mike-pence/statements/?page=2&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/mike-pence/statements/?page=3&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;mike-pence&#39;,
-  &#39;urlpages&#39;: 3},
- &#39;Mitch McConnell&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/mitch-mcconnell/statements/?page=1&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/mitch-mcconnell/statements/?page=2&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;mitch-mcconnell&#39;,
-  &#39;urlpages&#39;: 2},
- &#39;Nancy Pelosi&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/nancy-pelosi/statements/?page=1&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/nancy-pelosi/statements/?page=2&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;nancy-pelosi&#39;,
-  &#39;urlpages&#39;: 2},
- &#39;Paul Ryan&#39;: {&#39;urllist&#39;: [&#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=1&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=2&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=3&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=4&amp;list=speaker&#39;,
-   &#39;http://www.politifact.com/personalities/paul-ryan/statements/?page=5&amp;list=speaker&#39;],
-  &#39;urlname&#39;: &#39;paul-ryan&#39;,
-  &#39;urlpages&#39;: 5}}
-</pre></div>
-
-
-<h4>Retrieve and parse data</h4>
-<p>Here is the real substance to what I'm doing. For the sake of organization, I created a function that parses the data I want to retrieve from the HTML I requested using the generated URLs. This part of the process involves more HTML investigation like that done for finding the page number data above, except here I'm looking for tags that allow be to locate the date a statement was made, the text of that statement, and the truth-rating assigned to it.</p>
-<p>I found that the tag "class_='statement__source'" containing the politician's name (the version in the list prior to URL formatting) contained all the data I was look for. Below, I put the HTML containing that data into a list with each statement as an element. I then pass that list to a function that steps through it, scrapes the data I want, and appends only that data to a dictionary (truth_data).</p>
-<div class="highlight"><pre><span></span><span class="c1"># See code below before parsing function code.</span>
-<span class="k">def</span> <span class="nf">truth_extractor</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">fact_checks</span><span class="p">,</span> <span class="n">truth_data</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Input:</span>
-<span class="sd">    person = Name of person making the statement in question.</span>
-
-<span class="sd">    fact-checks = list of HTML elements containing that fact-check data to be scraped</span>
-
-<span class="sd">    truth_data = dictionary of data scraped so far to be appended and returned.</span>
-<span class="sd">    ---------</span>
-<span class="sd">    Function:</span>
-<span class="sd">    Step through list of HTML elements containing desired data, locate data, parse into desired format,</span>
-<span class="sd">    append to dictionary.</span>
-<span class="sd">    ---------</span>
-<span class="sd">    Output:</span>
-<span class="sd">    truth_data = dictionary with scraped data appended</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Iterate over items stored in fact_checks list.</span>
-    <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">fact_checks</span><span class="p">:</span>
-        <span class="c1">#Within this item, located the tag &quot;class_=&#39;statement&#39;.</span>
-        <span class="n">statement</span> <span class="o">=</span> <span class="n">check</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s1">&#39;statement&#39;</span><span class="p">)</span>
-
-        <span class="c1">#Locate the the data for statement date, truth rating (under meter), and text using associated tags.</span>
-        <span class="n">statement_date</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;article__meta&quot;</span><span class="p">)</span>
-        <span class="n">statement_meter</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;meter&quot;</span><span class="p">)</span>
-        <span class="n">statement_text</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__text&quot;</span><span class="p">)</span>
-
-        <span class="c1">#Perform first parsing of each string retrieved above. Text needs no parsing.</span>
-        <span class="n">parse_date_1</span> <span class="o">=</span> <span class="n">statement_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
-        <span class="n">parse_meter_1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;(\&quot;(.+?)\&quot;)&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">statement_meter</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
-        <span class="n">parse_text_final</span> <span class="o">=</span> <span class="n">statement_text</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
-
-        <span class="c1">#Perform further parsing of date, final parsing of truth rating string.</span>
-        <span class="n">parse_date_2</span> <span class="o">=</span> <span class="n">parse_date_1</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;on &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">parse_meter_final</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parse_meter_1</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
-
-        <span class="c1">#Perform final parsing of date</span>
-        <span class="n">parse_date_final</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">parse_date_2</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-
-        <span class="c1">#Append scraped data to dictionary initialized below.</span>
-        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Person&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
-        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_date_final</span><span class="p">)</span>
-        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Veracity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_meter_final</span><span class="p">)</span>
-        <span class="n">truth_data</span><span class="p">[</span><span class="s1">&#39;Text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_text_final</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">truth_data</span>
-
-<span class="c1"># Set up a dictionary to contain scraped data.</span>
-<span class="n">truth_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Person&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Date&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Veracity&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Text&#39;</span><span class="p">:[]}</span>
-
-<span class="c1"># create a list of politician names from the lookup dictionary.</span>
-<span class="n">person_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">person_lookup_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-
-<span class="c1"># for each item in the list, return the HTML element containing the data I wish to scrape.</span>
-<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_list</span><span class="p">:</span>
-    <span class="c1"># Retrieve the list of URLs generated earlier of each person in the list</span>
-    <span class="n">url_list</span> <span class="o">=</span> <span class="n">person_lookup_dict</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="s1">&#39;urllist&#39;</span><span class="p">]</span>
-
-    <span class="c1"># Iterate through the list of URLs.</span>
-    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
-        <span class="c1"># Retrieve the webpage for each URL.</span>
-        <span class="n">page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-
-        <span class="c1"># Wait a random amount of time between 10 and 20 seconds.</span>
-        <span class="c1"># If an error is returned, state the status code and break the loop.</span>
-        <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;We may have a problem here.&#39;</span><span class="p">,</span> <span class="n">page</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
-            <span class="k">break</span>
-
-        <span class="c1"># Parse the HTML using BeatifulSoup.</span>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
-
-        <span class="sd">&quot;&quot;&quot;In Politifact.com HTML tags Nancy Pelosi&#39;s name is formatted with two spaces between &quot;Nancy&quot; and &quot;Pelosi&quot;.</span>
-<span class="sd">        Because of this, I had to create a special case when searching for statements made by her.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">person</span> <span class="o">==</span> <span class="s1">&#39;Nancy Pelosi&#39;</span><span class="p">:</span>
-            <span class="n">fact_checks</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__source&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Nancy  Pelosi&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fact_checks</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s2">&quot;statement__source&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
-
-        <span class="c1"># Pass that list to the fuction &quot;truth_extractor&quot;.</span>
-        <span class="n">truth_extractor</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">fact_checks</span><span class="p">,</span> <span class="n">truth_data</span><span class="p">)</span>   
-
-        <span class="c1"># Show progress.</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="o">+</span> <span class="s1">&#39;step &#39;</span> <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">person_list</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, substep: &#39;</span>\
-                         <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">url_list</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;         &#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>step 7 of 7, substep: 1 of 1
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="c1"># Convert dictionary of scraped data to dataframe.</span>
-<span class="n">truth_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">truth_data</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
-
-<span class="c1"># Show final product.</span>
-<span class="n">truth_df</span>
-</pre></div>
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Date</th>
-      <th>Person</th>
-      <th>Text</th>
-      <th>Veracity</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2018-04-10</td>
-      <td>Donald Trump</td>
-      <td>\nEPA administrator Scott Pruitt's short-term ...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2018-04-10</td>
-      <td>Donald Trump</td>
-      <td>\nSays Scott Pruitt’s security spending was "s...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2018-04-09</td>
-      <td>Donald Trump</td>
-      <td>\n"When a car is sent to the United States fro...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2018-04-09</td>
-      <td>Donald Trump</td>
-      <td>\n"This will be the last time — April — that y...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2018-04-06</td>
-      <td>Donald Trump</td>
-      <td>\n"In many places, like California, the same p...</td>
-      <td>Pants on Fire!</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2018-04-04</td>
-      <td>Donald Trump</td>
-      <td>\n"We’ve started building the wall."\r\n\n</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>2018-04-02</td>
-      <td>Donald Trump</td>
-      <td>\nSays caravans of people are coming to cross ...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>2018-04-02</td>
-      <td>Donald Trump</td>
-      <td>\nMexico has "very strong border laws -- ours ...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>2018-04-02</td>
-      <td>Donald Trump</td>
-      <td>\n"Only fools, or worse, are saying that our m...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>2018-03-28</td>
-      <td>Donald Trump</td>
-      <td>\n"Last year we lost $500 billion on trade wit...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>2018-03-22</td>
-      <td>Donald Trump</td>
-      <td>\nSays Conor Lamb "ran on a campaign that said...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>2018-03-21</td>
-      <td>Donald Trump</td>
-      <td>\nRobert Mueller’s investigative team has "13 ...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>2018-03-16</td>
-      <td>Donald Trump</td>
-      <td>\nSays Democratic obstruction is the reason wh...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2018-03-15</td>
-      <td>Donald Trump</td>
-      <td>\nIn Japan, "they take a bowling ball from 20 ...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>2018-03-15</td>
-      <td>Donald Trump</td>
-      <td>\n"We do have a Trade Deficit with Canada, as ...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>2018-03-14</td>
-      <td>Donald Trump</td>
-      <td>\nSays China and Singapore impose the death pe...</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>2018-03-13</td>
-      <td>Donald Trump</td>
-      <td>\n"The state of California is begging us to bu...</td>
-      <td>Pants on Fire!</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>2018-03-13</td>
-      <td>Donald Trump</td>
-      <td>\nSays the U.S. steel and aluminum industry is...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>2018-03-12</td>
-      <td>Donald Trump</td>
-      <td>\nThe last private rocket launch "cost $80 mil...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>2018-03-09</td>
-      <td>Donald Trump</td>
-      <td>\nAmerican aluminum and steel "are vital to ou...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>2018-03-09</td>
-      <td>Donald Trump</td>
-      <td>\n"When I was campaigning, I was talking about...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>2018-03-07</td>
-      <td>Donald Trump</td>
-      <td>\n"Democrats are nowhere to be found on DACA."...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>2018-03-06</td>
-      <td>Donald Trump</td>
-      <td>\nThe 2018 Academy Awards show was the "lowest...</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>2018-03-01</td>
-      <td>Donald Trump</td>
-      <td>\n"You take Pulse nightclub. If you had one pe...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>2018-02-20</td>
-      <td>Donald Trump</td>
-      <td>\n"I have been much tougher on Russia than Oba...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>25</th>
-      <td>2018-02-19</td>
-      <td>Donald Trump</td>
-      <td>\n"I never said Russia did not meddle in the e...</td>
-      <td>Pants on Fire!</td>
-    </tr>
-    <tr>
-      <th>26</th>
-      <td>2018-02-08</td>
-      <td>Donald Trump</td>
-      <td>\n"The Democrats are pushing for Universal Hea...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>27</th>
-      <td>2018-02-07</td>
-      <td>Donald Trump</td>
-      <td>\nMany gang members have taken advantage of "g...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>28</th>
-      <td>2018-02-06</td>
-      <td>Donald Trump</td>
-      <td>\nAt the State of the Union address, Democrats...</td>
-      <td>Pants on Fire!</td>
-    </tr>
-    <tr>
-      <th>29</th>
-      <td>2018-02-02</td>
-      <td>Donald Trump</td>
-      <td>\n"Instead of two for one, we have cut 22 burd...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>1359</th>
-      <td>2013-05-28</td>
-      <td>Mitch McConnell</td>
-      <td>\n\r\n\tSays Health and Human Services Secreta...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1360</th>
-      <td>2010-06-14</td>
-      <td>Mitch McConnell</td>
-      <td>\n"A major part" of the climate change bill sp...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1361</th>
-      <td>2010-04-20</td>
-      <td>Mitch McConnell</td>
-      <td>\nNew financial regulation "actually guarantee...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1362</th>
-      <td>2010-02-19</td>
-      <td>Mitch McConnell</td>
-      <td>\nThe stimulus includes  "$219,000 to study  t...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>1363</th>
-      <td>2010-02-19</td>
-      <td>Mitch McConnell</td>
-      <td>\n"$100,000 in  stimulus funds (were) used for...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1364</th>
-      <td>2010-02-01</td>
-      <td>Mitch McConnell</td>
-      <td>\nOn a bipartisan task force on ways to improv...</td>
-      <td>Full Flop</td>
-    </tr>
-    <tr>
-      <th>1365</th>
-      <td>2009-12-02</td>
-      <td>Mitch McConnell</td>
-      <td>\nThe Senate health care bill does not contain...</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>1366</th>
-      <td>2009-06-01</td>
-      <td>Mitch McConnell</td>
-      <td>\n"The Department of Justice, under the Obama ...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>1367</th>
-      <td>2009-05-19</td>
-      <td>Mitch McConnell</td>
-      <td>\nA public option for health care would end pr...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>1368</th>
-      <td>2009-03-03</td>
-      <td>Mitch McConnell</td>
-      <td>\n"In just one month, the Democrats have spent...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1369</th>
-      <td>2009-02-03</td>
-      <td>Mitch McConnell</td>
-      <td>\n To give the proposed economic stimulus plan...</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>1370</th>
-      <td>2009-01-05</td>
-      <td>Mitch McConnell</td>
-      <td>\nIf Obama's economic plan creates 600,000 new...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1371</th>
-      <td>2017-03-27</td>
-      <td>Charles Schumer</td>
-      <td>\n"In fact, if you add up the net wealth of hi...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1372</th>
-      <td>2017-10-08</td>
-      <td>Charles Schumer</td>
-      <td>\nTrump’s tax plan is "completely focused on t...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1373</th>
-      <td>2017-10-06</td>
-      <td>Charles Schumer</td>
-      <td>\n"The Republicans are proposing to pay for th...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>1374</th>
-      <td>2017-07-25</td>
-      <td>Charles Schumer</td>
-      <td>\n"When the price for oil goes up on the marke...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1375</th>
-      <td>2017-05-18</td>
-      <td>Charles Schumer</td>
-      <td>\n"President Obama became the first president ...</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>1376</th>
-      <td>2017-03-27</td>
-      <td>Charles Schumer</td>
-      <td>\n"In fact, if you add up the net wealth of hi...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1377</th>
-      <td>2017-01-27</td>
-      <td>Charles Schumer</td>
-      <td>\nSays Rex "Tillerson won't divest from Exxon....</td>
-      <td>Pants on Fire!</td>
-    </tr>
-    <tr>
-      <th>1378</th>
-      <td>2017-01-10</td>
-      <td>Charles Schumer</td>
-      <td>\nSays Donald Trump campaigned on not cutting ...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1379</th>
-      <td>2016-06-15</td>
-      <td>Charles Schumer</td>
-      <td>\nLast year, "244 suspected terrorists walked ...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1380</th>
-      <td>2015-05-18</td>
-      <td>Charles Schumer</td>
-      <td>\n"It is simply a fact that insufficient fundi...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>1381</th>
-      <td>2015-03-08</td>
-      <td>Charles Schumer</td>
-      <td>\n\r\n"The State Department asked all secretar...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>1382</th>
-      <td>2014-12-04</td>
-      <td>Charles Schumer</td>
-      <td>\nIn 2010, uninsured voters made up "about 5 p...</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>1383</th>
-      <td>2014-05-08</td>
-      <td>Charles Schumer</td>
-      <td>\nIf you work 40 hours a week at the proposed ...</td>
-      <td>Half-True</td>
-    </tr>
-    <tr>
-      <th>1384</th>
-      <td>2013-10-08</td>
-      <td>Charles Schumer</td>
-      <td>\nBecause of the 2011 debt ceiling fight, "the...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1385</th>
-      <td>2010-08-04</td>
-      <td>Charles Schumer</td>
-      <td>\n\r\n\t"Eight of the nine justices in the Sup...</td>
-      <td>Mostly True</td>
-    </tr>
-    <tr>
-      <th>1386</th>
-      <td>2010-04-13</td>
-      <td>Charles Schumer</td>
-      <td>\n"No one questioned that she (Judge Sotomayor...</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1387</th>
-      <td>2010-01-22</td>
-      <td>Charles Schumer</td>
-      <td>\n"With a stroke of a pen, the (U.S. Supreme C...</td>
-      <td>Mostly False</td>
-    </tr>
-    <tr>
-      <th>1388</th>
-      <td>2009-03-12</td>
-      <td>Charles Schumer</td>
-      <td>\n\r\n\t"No Bridge to Nowhere could occur."\n</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-<p>1389 rows × 4 columns</p>
-</div>
-
-<div class="highlight"><pre><span></span><span class="c1"># Save dataframe to CSV file.</span>
-<span class="n">truth_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;politic_truth.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-</pre></div>
-		</div> <!--/#entry-content-->
-    		<span class="tag-links"><strong>Tagged</strong>
- <a href="/tag/beautifulsoup.html" rel="tag">BeautifulSoup</a>,  <a href="/tag/fact-checking.html" rel="tag">fact checking</a>,  <a href="/tag/politifactcom.html" rel="tag">Politifact.com</a>,  <a href="/tag/trump.html" rel="tag">Trump</a>,  <a href="/tag/tutorial.html" rel="tag">tutorial</a>,  <a href="/tag/web-scraping.html" rel="tag">web scraping</a>    		</span>
-	</div> <!--/#main-->
-</div>  <!--/#post--><div class="navigation">
-</div>
-		</div>
-
-		<div id="footer">
-			<p>Powered by <a href="http://getpelican.com">Pelican</a>, theme by <a href="http://bunnyman.info">tBunnyMan</a>.</p>
-		</div><!-- /#footer -->
-	</div><!-- /#container -->
-	<div style="display:none"></div>
 </body>
 </html>
