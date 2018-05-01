@@ -333,7 +333,7 @@
     <span class="c1"># unique start without getting mixed up somewhere along the way.</span>
     <span class="k">if</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
         <span class="n">script_idx</span> <span class="o">=</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="c1"># Return &#39;-1&#39; to indicate that this doesn&#39;t exist if there&#39;s a problem</span>
+    <span class="c1"># If the closing tag cannot be found, just return the whole string</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">script_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
