@@ -1,0 +1,512 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="https://wamiller0783.github.io/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="https://wamiller0783.github.io/theme/pygments/github.min.css">
+  <link rel="stylesheet" type="text/css" href="https://wamiller0783.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+
+
+
+
+
+
+<meta name="author" content="William Miller" />
+<meta name="description" content="Scraping PolitiFact.com for fact check data." />
+<meta name="keywords" content="web scraping, BeautifulSoup, Politifact.com, TED, TED talks">
+
+<meta property="og:site_name" content="Epiousios"/>
+<meta property="og:title" content="Data Scraping from TED.com"/>
+<meta property="og:description" content="Scraping PolitiFact.com for fact check data."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://wamiller0783.github.io/TED-scraping-post.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2018-04-30 19:40:00-05:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="https://wamiller0783.github.io/author/william-miller.html">
+<meta property="article:section" content="Web Scraping"/>
+<meta property="article:tag" content="web scraping"/>
+<meta property="article:tag" content="BeautifulSoup"/>
+<meta property="article:tag" content="Politifact.com"/>
+<meta property="article:tag" content="TED"/>
+<meta property="article:tag" content="TED talks"/>
+<meta property="og:image" content="/images/profile_img.jpg">
+
+  <title>Epiousios &ndash; Data Scraping from TED.com</title>
+
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="https://wamiller0783.github.io">
+        <img src="/images/profile_img.jpg" alt="William Miller" title="William Miller">
+      </a>
+      <h1><a href="https://wamiller0783.github.io">William Miller</a></h1>
+
+<p>Searching for Patterns that Matter</p>
+
+      <ul class="social">
+        <li><a class="sc-LinkedIn" href="https://www.linkedin.com/in/william-miller-88a37b159/" target="_blank"><i class="fa fa-LinkedIn"></i></a></li>
+      </ul>
+    </div>
+
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://wamiller0783.github.io">    Home
+</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="TED-scraping-post">Data Scraping from TED.com</h1>
+    <p>
+          Posted on Mon 30 April 2018 in <a href="https://wamiller0783.github.io/category/web-scraping.html">Web Scraping</a>
+
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>In preparation for a data analysis project predicting how people are likely to rate TED talks, I decided to scrape all of the metadata and transcripts for all TED talks. Since there are currently over 2700 TED talks, this script takes quite a long time to run, but it is effective. I will provide brief explanations of what I'm doing in each cell of code apart from the normal documentation.</p>
+<p>Note that everything below is based on the state of their website as of April 30th, 2018, and it might lose functionality if they make any significant changes to their HTML or javascript.</p>
+<h4>Import libraries</h4>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">Comment</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+</pre></div>
+
+
+<h4>Create toggles</h4>
+<p>It can take a really long time to scrape all this data, so I'm creating a dashboard of sorts at the outset so I can toggle various levels of it on or off. "General data" does not take very long at all, and some fun analysis can be done with just that, so unless I decide to modify this more in the future, I'm just going to separate that out from the rest. As I also noted in the comment below, scraping specific data relies on general data, so it must be run at least once before specific is set to "True"</p>
+<div class="highlight"><pre><span></span><span class="c1">#Set to &quot;False&quot; to avoid updating data. Set to &quot;True&quot; to update, which can be a lengthy process.</span>
+<span class="c1">#Scraping specific data relies on general data, so it must be run at least once before specific is set to &quot;True&quot;</span>
+<span class="n">update_general_data</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">update_specific_data</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1">#If this is toggled off, see if the file already exists and if data can be pulled from it.</span>
+<span class="k">if</span> <span class="n">update_general_data</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">TED_gen_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;TEDGeneral.csv&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;No general data to read, set &quot;fetch general data&quot; to &quot;True&quot; to aquire data&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">update_specific_data</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;TEDSpecific.csv&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;No specific data to read, set &quot;fetch specific data&quot; to &quot;True&quot; to aquire data&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>Create function to show progress</h4>
+<p>We're going to want to see how much work has been done and how much remains at various points, so I'm going to create a very basic, easy function for that.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">whole</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    part = element of list</span>
+<span class="sd">    whole = list</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Find the number of element &quot;part&quot; is within &quot;whole&quot;</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    Return the string &quot;[nth list element] of [list length]&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">whole</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">progress</span>
+</pre></div>
+
+
+<h4>Create URL building functions</h4>
+<p>We'll need a couple of functions to assist with seeing how many pages there are, then building URLs to access them</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_num_pages</span><span class="p">(</span><span class="n">start_page_soup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    start_page_soup = The HTML of a page 1 of talks on www.TED.com, as processed by BeautifulSoup</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Search the HTML of www.TED.com/talks for the number of pages of talks.</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    The number of pages of talks on www.TED.com/talks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># There are hyperlinks to navigate pages of TED talks given the class &quot;pagination&quot;, find that class</span>
+    <span class="n">pagination_str</span> <span class="o">=</span> <span class="n">start_page_soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;pagination&#39;</span><span class="p">)</span>
+    <span class="n">page_num_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Step through the strings returned by searching for the pagination class and add them to a list</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">pagination_str</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+        <span class="n">page_num</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">child</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">page_num</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">page_num_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">page_num</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="c1"># Return the value of link that contained the number of the largest page</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">page_num_list</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">build_page_urls</span><span class="p">(</span><span class="n">start_url</span><span class="p">,</span> <span class="n">num_pages</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    start_url = The base URL that lists TED talks</span>
+<span class="sd">    num_pages = the number of pages of TED talks</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Build a list of valid URLs of pages listing TED talks</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    The list of URLs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Create strings of valid URLs according to the pattern observed on TED.com</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_pages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">url_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">start_url</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">url_list</span>
+</pre></div>
+
+
+<h4>Create functions to request a webpage and handle request errors</h4>
+<p>It is very easy to call a website too frequently and get shut out, so it is necessary to insert some wait time into this function. After experimenting, I found that waiting random intervals between 10 seconds and 25 seconds seemed to be ideal. Sometimes transcript pages do not exist for some talks, so I definitely need to handle the errors that will result from when I request pages that do not exist. Occasionally requests will also timeout for no apparent reason, so this must also be handled.</p>
+<p>Getting this right is probably the most delicate and tricky part of scraping a large amount of data.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">request_webpage</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    url = The url to request</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Request the html from a URL while avoiding calling TED.com too frequently</span>
+<span class="sd">    and while turning any errors that may occur over to an error handler.</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    The html returned from a URL request</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If we receive a timeout, we&#39;re going to want to try again, timeout_tries is how many times</span>
+    <span class="n">timeout_tries</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Count the number of tries, retry until we&#39;ve tried enough</span>
+    <span class="k">while</span> <span class="n">tries</span> <span class="o">&lt;=</span> <span class="n">timeout_tries</span><span class="p">:</span>
+        <span class="c1">#Wait a random interval to keep from calling the website too often.</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">25</span><span class="p">))</span>
+        <span class="c1">#Try to get the page, if it returns a code that is not a success code, call the error handler</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+            <span class="n">page_request_code</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">page_request_code</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                <span class="n">page</span> <span class="o">=</span> <span class="n">request_errorhandle</span><span class="p">(</span><span class="n">page_request_code</span><span class="p">)</span>
+
+            <span class="k">break</span>
+        <span class="c1"># If the request times out, iterate up the number of tries and try again.</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">tries</span> <span class="o">=</span> <span class="n">tries</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">page</span>
+
+<span class="k">def</span> <span class="nf">request_errorhandle</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    code = The code of a failed URL request</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Handle the codes of any failed URL request that we are likely to receive</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    The HTML returned from a URL request</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If we entered an invalid URL, return null data</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="s1">&#39;404&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="c1"># Most codes throw by valid URLs can be handled by waiting awhile and trying again</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">360</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+        <span class="c1">#If that doesn&#39;t work, make the returned page data equal &quot;error&quot;. I can then go back and fix it.</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="s1">&#39;error&#39;</span>
+
+        <span class="k">return</span> <span class="n">page</span>
+</pre></div>
+
+
+<h4>Set up functions to retrieve data</h4>
+<p>I've set up 3 functions for retrieving data. "data_from_url" retrieves very general information about each TED talk. "extract_data_script" retrieves much more specific information for each TED talk. "get_transcript" retrieves the transcript for each talk, if it exists.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">data_from_url</span><span class="p">(</span><span class="n">page_soup</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    page_soup = The BeautifulSoup data from a page of TED talks</span>
+<span class="sd">    data_dict = A dictionary of the data from TED talks that I will append to</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Extract the data I&#39;m interested in and append it to a dictionary</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    A dictionary containing the metadata I&#39;m interested in from a page listing TED talks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Save data from all talks on page to talk_data</span>
+    <span class="n">page_data</span> <span class="o">=</span> <span class="n">page_soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;talk-link&#39;</span><span class="p">)</span>
+    <span class="c1"># Iterate over that data and save the bits we&#39;re interested in</span>
+    <span class="k">for</span> <span class="n">talk</span> <span class="ow">in</span> <span class="n">page_data</span><span class="p">:</span>
+        <span class="n">media_data</span> <span class="o">=</span> <span class="n">talk</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;span&#39;</span> <span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;thumb thumb--video thumb--crop-top&#39;</span><span class="p">})</span>
+        <span class="n">message_data</span> <span class="o">=</span> <span class="n">talk</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;media__message&#39;</span><span class="p">)</span>
+        <span class="n">title_url_data</span> <span class="o">=</span> <span class="n">message_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39; ga-link&#39;</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data-ga-context&#39;</span><span class="p">:</span> <span class="s1">&#39;talks&#39;</span><span class="p">})</span>
+        <span class="n">meta_data</span> <span class="o">=</span> <span class="n">message_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;meta&#39;</span><span class="p">})</span>
+        <span class="c1">#get title</span>
+        <span class="n">talk_title</span> <span class="o">=</span> <span class="n">title_url_data</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1">#get speaker</span>
+        <span class="n">talk_speaker</span> <span class="o">=</span> <span class="n">message_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;h12 talk-link__speaker&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  
+        <span class="c1">#get url</span>
+        <span class="n">talk_url</span> <span class="o">=</span> <span class="s1">&#39;https://www.ted.com&#39;</span> <span class="o">+</span> <span class="n">title_url_data</span><span class="p">[</span><span class="s1">&#39;href&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1">#get date posted</span>
+        <span class="n">talk_date</span> <span class="o">=</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;meta__item&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;meta__val&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1">#get rated bool and rating</span>
+        <span class="k">if</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;meta__row&#39;</span><span class="p">):</span>
+            <span class="n">talk_rated_bool</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">talk_ratings</span> <span class="o">=</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;meta__row&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">class_</span> <span class="o">=</span> <span class="s1">&#39;meta__val&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">talk_rated_bool</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">talk_ratings</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c1"># get duration</span>
+        <span class="n">talk_duration</span> <span class="o">=</span> <span class="n">media_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;span&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;thumb__duration&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">data_dict</span><span class="p">[</span><span class="n">talk_url</span><span class="p">]</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">talk_title</span><span class="p">,</span> <span class="s1">&#39;speaker&#39;</span><span class="p">:</span> <span class="n">talk_speaker</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">talk_date</span><span class="p">,</span>
+                                      <span class="s1">&#39;rated_bool&#39;</span><span class="p">:</span> <span class="n">talk_rated_bool</span><span class="p">,</span> <span class="s1">&#39;ratings&#39;</span><span class="p">:</span> <span class="n">talk_ratings</span><span class="p">,</span>
+                                      <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="n">talk_duration</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">data_dict</span>
+
+<span class="k">def</span> <span class="nf">extract_data_script</span><span class="p">(</span><span class="n">page_data</span><span class="p">,</span> <span class="n">unique_start</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    page_data = The BeautifulSoup data from the page of a specific TED talk</span>
+<span class="sd">    unique_start = Any unique string that marks the beginning of some javascript to extract</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Extract some javascript containing data I&#39;m interested in and append it to a dictionary</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    A string of raw javascript that contains data I&#39;m interested in.</span>
+<span class="sd">    (Further processing will be required to finalize data extraction.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a string from the BeautifulSoup page data.</span>
+    <span class="n">page_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">page_data</span><span class="p">)</span>
+    <span class="c1"># Set the index to search within to the location of the string in unique_start</span>
+    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">page_str</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">unique_start</span><span class="p">)</span>
+    <span class="c1"># Find the closing and opening tags for all javascript</span>
+    <span class="n">num_script_start</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="s1">&#39;&lt;script&#39;</span><span class="p">,</span> <span class="n">page_str</span><span class="p">)</span>
+    <span class="n">num_script_end</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="s1">&#39;&lt;/script&gt;&#39;</span><span class="p">,</span> <span class="n">page_str</span><span class="p">)</span>
+    <span class="c1"># Make a list of locations of opening and closing javacripts tags, then combine</span>
+    <span class="n">start_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">num_script_start</span><span class="p">]</span>
+    <span class="n">end_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">end</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">num_script_end</span><span class="p">]</span>
+    <span class="n">script_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">start_list</span><span class="p">,</span><span class="n">end_list</span><span class="p">))</span>
+
+    <span class="c1"># Narrow that list of locations down to just the ones that begin after unique_start</span>
+    <span class="n">narrowed_script_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">script_list</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">start_idx</span> <span class="p">]</span>
+
+    <span class="c1"># Ensure that we have selected the first opening tag and first closing tag after</span>
+    <span class="c1"># unique start without getting mixed up somewhere along the way.</span>
+    <span class="k">if</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">script_idx</span> <span class="o">=</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Return &#39;-1&#39; to indicate that this doesn&#39;t exist if there&#39;s a problem</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">script_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="c1">#extract the string of javascript</span>
+    <span class="n">data_extract</span> <span class="o">=</span> <span class="n">page_str</span><span class="p">[</span><span class="n">script_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">script_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">data_extract</span>
+
+
+
+<span class="k">def</span> <span class="nf">get_transcript</span><span class="p">(</span><span class="n">transcript_page_soup</span><span class="p">,</span> <span class="n">start_transcript</span><span class="p">,</span> <span class="n">end_transcript</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input:</span>
+<span class="sd">    transcript_page_soup = The BeautifulSoup data from the page of a specific TED talk transcript</span>
+<span class="sd">    start_transcript = Comment indicating the start of a transcript</span>
+<span class="sd">    end_transcript = Comment indicating the end of a transcript</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Function:</span>
+<span class="sd">    Extract the transcript from a TED talk, if it exists</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Output:</span>
+<span class="sd">    A string containing the transcript of a TED talk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialize a list to store each element of a transcript</span>
+    <span class="n">transcript_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># In case there is no closing comment for a transcript, set a maximum</span>
+    <span class="c1"># number of times we&#39;ll look for it.</span>
+    <span class="n">timeout</span> <span class="o">=</span> <span class="mi">300</span>
+    <span class="n">timeit</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Find all comments within the transcript page</span>
+    <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">transcript_page_soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="k">lambda</span> <span class="n">text</span><span class="p">:</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">Comment</span><span class="p">)</span>\
+                <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">start_transcript</span><span class="p">):</span>
+        <span class="c1"># Find a comment that denotes the start of a transcript</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">start_transcript</span><span class="p">:</span>
+            <span class="c1"># Get the transcript until a comment is reached that denotes the end of a transcript</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">timeit</span> <span class="o">=</span> <span class="n">timeit</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span><span class="o">.</span><span class="n">next_element</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">end_transcript</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">transcript_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+                <span class="c1"># If we&#39;ve gone on for a while without finding a closing comment, end the loop</span>
+                <span class="k">if</span> <span class="n">timeit</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+                    <span class="k">break</span>
+    <span class="c1"># Join the list of elements that contained the transcript into a string</span>
+    <span class="n">transcript</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">transcript_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">transcript</span>
+</pre></div>
+
+
+<h4>Retrieve general data</h4>
+<p>Having set up all of my functions, now it's time to use them. General data retrieval comes first, and as I mentioned, it is much faster than retrieving all of the specific data. This is because this data resides in the pages that lists all of the TED talks (which currently numbers 77), rather that the pages for each individual TED talk (which currently numbers over 2770).</p>
+<div class="highlight"><pre><span></span><span class="c1"># Check to see if I&#39;ve toggled update_general_data on.</span>
+<span class="k">if</span> <span class="n">update_general_data</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="c1"># Retrieve the first page of TED talks</span>
+    <span class="n">start_url</span> <span class="o">=</span> <span class="s1">&#39;https://www.ted.com/talks?page=1&#39;</span>
+    <span class="n">start_page</span> <span class="o">=</span> <span class="n">request_webpage</span><span class="p">(</span><span class="n">start_url</span><span class="p">)</span>
+    <span class="n">start_page_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">start_page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+    <span class="c1"># Use that page to find the total number of pages</span>
+    <span class="n">num_talk_pages</span> <span class="o">=</span> <span class="n">get_num_pages</span><span class="p">(</span><span class="n">start_page_soup</span><span class="p">)</span>
+    <span class="c1"># Build a list of URLs for all the pages listing TED talks</span>
+    <span class="n">talks_url_list</span> <span class="o">=</span> <span class="n">build_page_urls</span><span class="p">(</span><span class="n">start_url</span><span class="p">,</span> <span class="n">num_talk_pages</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># Check to see if I&#39;ve toggled update_general_data on.</span>
+<span class="k">if</span> <span class="n">update_general_data</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="c1"># Set up dictionary for temporary storage</span>
+    <span class="n">TED_talk_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">talks_url_list</span><span class="p">:</span>
+        <span class="c1"># Call webpage request function</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="n">request_webpage</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="c1"># Convert page request to BeautfulSoup</span>
+        <span class="n">page_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>      
+        <span class="c1"># Pull data from soup using data_url_fuction and add to dict</span>
+        <span class="n">TED_talk_dict</span> <span class="o">=</span> <span class="n">data_from_url</span><span class="p">(</span><span class="n">page_soup</span><span class="p">,</span> <span class="n">TED_talk_dict</span><span class="p">)</span>
+        <span class="c1"># Show progress</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="o">+</span> <span class="s1">&#39;step &#39;</span> <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">talks_url_list</span><span class="p">))</span>
+
+    <span class="c1"># Make dataframe of all data from URLs</span>
+    <span class="n">TED_gen_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">TED_talk_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="c1"># Process dataframe, setting the URL (which must be unique) to the index</span>
+    <span class="n">TED_gen_df</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TED_gen_df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+    <span class="n">TED_gen_df</span> <span class="o">=</span> <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Show a sample</span>
+    <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># Check to see if I&#39;ve toggled update_general_data on.</span>
+<span class="k">if</span> <span class="n">update_general_data</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="c1">#If so, save our newly retrieve general data to a CSV</span>
+    <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;TEDGeneral.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># Add two empty columns to our dataframe</span>
+<span class="n">TED_gen_df</span><span class="p">[</span><span class="s1">&#39;raw_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="n">TED_gen_df</span><span class="p">[</span><span class="s1">&#39;transcript&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="c1"># For each TED talk in the dataframe, retrieve its URL (stored as index)</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">page_url</span> <span class="o">=</span> <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+    <span class="c1"># Make the url for the transcript page</span>
+    <span class="n">transcript_url</span> <span class="o">=</span> <span class="n">page_url</span> <span class="o">+</span> <span class="s1">&#39;/transcript&#39;</span>
+    <span class="c1"># Request web pages for the specific talk data and the transcript data.</span>
+    <span class="n">talk_page</span> <span class="o">=</span> <span class="n">request_webpage</span><span class="p">(</span><span class="n">page_url</span><span class="p">)</span>
+    <span class="n">transcript_page</span> <span class="o">=</span> <span class="n">request_webpage</span><span class="p">(</span><span class="n">transcript_url</span><span class="p">)</span>
+    <span class="c1"># If the talk page is not blank, and an error was not returned, extract data from it</span>
+    <span class="k">if</span> <span class="n">talk_page</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">talk_page</span> <span class="o">!=</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+        <span class="n">talk_page_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">talk_page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+        <span class="n">extracted_data</span> <span class="o">=</span> <span class="n">extract_data_script</span><span class="p">(</span><span class="n">talk_page_soup</span><span class="p">,</span> <span class="s1">&#39;&lt;script&gt;q(&quot;talkPage.init&quot;, &#39;</span><span class="p">)</span>
+    <span class="c1"># If either of those things was the case, set the data to null</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extracted_data</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="c1"># If the transcript page is not blank, and an error was not returned, extract transcript from it</span>
+    <span class="k">if</span> <span class="n">transcript_page</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">transcript_page</span> <span class="o">!=</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+        <span class="n">transcript_page_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">transcript_page</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+        <span class="n">extracted_transcript</span> <span class="o">=</span> <span class="n">get_transcript</span><span class="p">(</span><span class="n">transcript_page_soup</span><span class="p">,</span> <span class="s1">&#39;Transcript text&#39;</span><span class="p">,</span> <span class="s1">&#39;/Transcript text&#39;</span><span class="p">)</span>
+    <span class="c1"># If either of those things was the case, set the transcript to null</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extracted_transcript</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="c1"># Write that extracted data to the dataframe</span>
+    <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s1">&#39;raw_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extracted_data</span>
+    <span class="n">TED_gen_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s1">&#39;transcript&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extracted_transcript</span>
+
+    <span class="c1">#Show progress. Blank string is to ensure complete overwrite of previous string after carriage return.</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;step &#39;</span> <span class="o">+</span> <span class="n">show_progress</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">TED_gen_df</span><span class="o">.</span><span class="n">index</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="n">transcript_url</span>\
+                    <span class="o">+</span><span class="s1">&#39;                                                                                 &#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># Save the updated dataframe to a csv (different from csv for general data)</span>
+<span class="n">TED_gen_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;TEDSpecific.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://wamiller0783.github.io/tag/web-scraping.html">web scraping</a>
+      <a href="https://wamiller0783.github.io/tag/beautifulsoup.html">BeautifulSoup</a>
+      <a href="https://wamiller0783.github.io/tag/politifactcom.html">Politifact.com</a>
+      <a href="https://wamiller0783.github.io/tag/ted.html">TED</a>
+      <a href="https://wamiller0783.github.io/tag/ted-talks.html">TED talks</a>
+    </p>
+  </div>
+
+
+
+
+
+</article>
+
+    <footer>
+<p>&copy;  2018</p>
+<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Epiousios ",
+  "url" : "https://wamiller0783.github.io",
+  "image": "/images/profile_img.jpg",
+  "description": ""
+}
+</script>
+
+</body>
+</html>
