@@ -335,9 +335,9 @@
         <span class="n">script_idx</span> <span class="o">=</span> <span class="n">narrowed_script_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="c1"># If the closing tag cannot be found, just return the whole string</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">script_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">narrowed_script_list</span> <span class="o">=</span> <span class="n">narrowed_script_list</span>
 
-    <span class="c1">#extract the string of javascript</span>
+    <span class="c1"># Extract the javascript string immediately after unique_start</span>
     <span class="n">data_extract</span> <span class="o">=</span> <span class="n">page_str</span><span class="p">[</span><span class="n">script_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">script_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
     <span class="k">return</span> <span class="n">data_extract</span>
