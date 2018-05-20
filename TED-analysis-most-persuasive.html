@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags always come first -->
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>TED Talk Trends - Which Talk is the Most Persuasive? | Epiousios
+</title>
+  <link rel="canonical" href="https://wamiller0783.github.io/TED-analysis-most-persuasive.html">
+
+
+
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/style.css">
+
+
+<meta name="description" content="Which TED talk is most persuasive? What exactly do we mean when we ask this, and how to we find out the answer? This post explores the answer to that question, and it will give you a long list of TED talks to enjoy.">
+<script>
+  (function(i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function() {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o);
+    a.async = 1;
+    a.src = g;
+    m = s.getElementsByTagName(o)[0];
+    m.parentNode.insertBefore(a, m)
+  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+  ga('create', 'UA-119561301-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <a href="https://wamiller0783.github.io">
+            <img class="img-fluid" src=https://wamiller0783.github.io/images/pattern_img_1.jpg width=150 height=150 alt="Epiousios">
+          </a>
+        </div>
+        <div class="col-sm-8">
+          <h1 class="title"><a href="https://wamiller0783.github.io">Epiousios</a></h1>
+          <p class="text-muted">Searching for Patterns that Matter</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>TED Talk Trends - Which Talk is the Most Persuasive?
+</h1>
+      <hr>
+<article class="article">
+  <header>
+    <ul class="list-inline">
+      <li class="list-inline-item text-muted" title="2018-05-20T16:00:00-05:00">
+        <i class="fa fa-clock-o"></i>
+        Sun 20 May 2018
+      </li>
+      <li class="list-inline-item">
+        <i class="fa fa-folder-open-o"></i>
+        <a href="https://wamiller0783.github.io/category/data-analysis.html">Data analysis</a>
+      </li>
+      <li class="list-inline-item">
+        <i class="fa fa-user-o"></i>
+        <a href="https://wamiller0783.github.io/author/william-miller.html">William Miller</a>      </li>
+      <li class="list-inline-item">
+        <i class="fa fa-files-o"></i>
+        <a href="https://wamiller0783.github.io/tag/data-analysis.html">#data analysis</a>,         <a href="https://wamiller0783.github.io/tag/tedcom.html">#TED.com</a>,         <a href="https://wamiller0783.github.io/tag/ted-talks.html">#TED talks</a>      </li>
+    </ul>
+  </header>
+  <div class="content">
+    <p>Not long ago, I scraped all of the data from all of the talks posted on TED.com. In this post, I intend to briefly explore what is meant when we ask which TED talk is "most persuasive" and evaluate which TED talk we might regard as the most persuasive ever given.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">TED_basic_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;TED_basic.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">TED_extracted_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;TED_extracted.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">TED_ratings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;TED_ratings.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">TED_tags_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;TED_tags_reduced.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">last_update</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s1">&#39;4/30/2018&#39;</span><span class="p">,</span> <span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">TED_df</span> <span class="o">=</span> <span class="n">TED_basic_df</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">TED_extracted_df</span><span class="p">,</span> <span class="n">TED_ratings_df</span><span class="p">])</span>
+</pre></div>
+
+
+<h2>TED talk rating distribution</h2>
+<p>Before evaluating the question of which TED talk is most persuasive, let's get a general idea of how people tend to rate TED talks. There may be patterns that will be of use towards answering our question, or at least an interesting insight or two that relates to it. To do this, we should look at two plots - one that shows how often different ratings tend to be given, and another that shows how view counts and ratings are related.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rating_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">TED_ratings_df</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">TED_ratings_df</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">rating_order</span><span class="p">,</span> <span class="n">showfliers</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;mako_r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;TED Talk Rating Distribution&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Number of times rated&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">rating_views</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([[</span><span class="n">a</span><span class="p">,</span> <span class="n">TED_ratings_df</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;view_count&#39;</span><span class="p">])]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">rating_order</span><span class="p">])</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">rating_views</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">rating_views</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;mako_r&#39;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Correlations between ratings and view counts&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Correlation to number of views&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_5_0.png"></p>
+<p>There are a couple of important pieces of information we can take away from these plots.  </p>
+<p>First, a rating of "persuasive" is not very common overall. "Inspiring" is over twice as common with a lot more talks with unusually high number of this rating. Ratings of "informative" and "fascinating" are also ratings that are a lot more common.  </p>
+<p>Second, while "persuasive" is not the most commonly given rating, talks that are often rated as such do tend to have a large number of views. It appears that talks that are rated "persuasive" do draw viewers nearly as much as those that are "inspiring", "informative", or "fascinating" even though those ratings are far more common.</p>
+<h2>What do we mean by "most persuasive"?</h2>
+<p>Especially in data analysis, it is very important to know exactly what question it is that we are trying to answer. It turns out, the question of which TED talk is "most persuasive" is pretty ambiguous, and there are multiple ways to think about what constitutes "most persuasive".  </p>
+<p>Though there are likely more ways this question could be taken, there are three ways of thinking about "most persuasive" that I wish to explore here.
+<ol>
+    <li>"Most persuasive" could be considered a talk that has been <strong>rated as persuasive by the largest number of people overall.</strong>
+    </li>
+    <li>"Most persuasive" could be considered a talk that has been <strong>rated as persuasive by the largest percentage of viewers.</strong>
+    </li>
+    <li>"Most persuasive" could be considered a talk that has been <strong>rated as persuasive most frequently since it was posted.</strong>
+    </li> <br>
+</ol></p>
+<h2>Which TED talk has been rated "persuasive" by the most viewers?</h2>
+<div class="highlight"><pre><span></span><span class="n">most_persuasive_df</span> <span class="o">=</span> <span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">most_persuasive_df</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span> <span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">most_persuasive_df</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;magma&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 Talks Rated Persuasive by Count&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Number of &quot;persuasive&quot; ratings&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_9_0.png"></p>
+<p>I'm including links to these talks below, in case anyone is as intrigued by then as I am.</p>
+<div class="highlight"><pre><span></span><span class="n">ranks_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;rank &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="n">u</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ranks_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>rank 1: https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity
+rank 2: https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action
+rank 3: https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are
+rank 4: https://www.ted.com/talks/dan_pink_on_motivation
+rank 5: https://www.ted.com/talks/brene_brown_on_vulnerability
+rank 6: https://www.ted.com/talks/shawn_achor_the_happy_secret_to_better_work
+rank 7: https://www.ted.com/talks/susan_cain_the_power_of_introverts
+rank 8: https://www.ted.com/talks/jamie_oliver
+rank 9: https://www.ted.com/talks/chimamanda_adichie_the_danger_of_a_single_story
+rank 10: https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_want_to_listen
+</pre></div>
+
+
+<p>The TED talk that the most people have rated persuasive appears to be "Do Schools Kill Creativity?" by Ken Robinson. It was given nearly 12 years ago in June of 2006, and it has been viewed a staggering 50.9 million times. Let's look at what other ratings people assigned to it.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">plot_df</span> <span class="o">=</span> <span class="n">TED_ratings_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">plot_df</span> <span class="o">=</span> <span class="n">plot_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">plot_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">plot_df</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ratings Distribution for &quot;Do Schools Kill Creativity?&quot;&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Number of ratings&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_13_0.png"></p>
+<h3>Does this constitute "most persuasive"?</h3>
+<p>This is an interesting result - the TED talk that has been rated as "persuasive" by the most people was rated as "inspiring", "funny, "fascinating" by far more people. There could be a number of reasons for this, and I'd like to take a bit of time to explore them.
+<ul>
+    <li>As we saw above, the rating "persuasive" is simply not given as frequently as other ratings for all videos. Ratings like "inspiring" or "fascinating" are used more frequently than others like "persuasive".</li>
+    <li>This talk could have been both viewed and rated many more times than other talks, giving it a total number of ratings that is higher than other talks. It might have more "persuasive" ratings that other talks just because it's been viewed and rated a larger number of times overall.</li>
+</ul></p>
+<h2>Which talk was rated persuasive by the highest percentage of viewers?</h2>
+<p>In order to do this, it is first necessary to take the number of ratings each talk has received by category, and then to divide the number or ratings by the number of views. Having done that, I can then see how many viewers chose to rate which talks "persuasive" more often than other talks and then rank them.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">divide_df_series</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">divided_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">divided_df</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">/</span> <span class="n">series</span>
+
+    <span class="k">return</span> <span class="n">divided_df</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">ratings_views_df</span> <span class="o">=</span> <span class="n">divide_df_series</span><span class="p">(</span><span class="n">TED_ratings_df</span><span class="p">,</span> <span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;view_count&#39;</span><span class="p">])</span>
+<span class="n">ratings_views_persuasive</span> <span class="o">=</span> <span class="n">ratings_views_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">ratings_views_persuasive</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_views_persuasive</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;magma&#39;</span><span class="p">)</span>
+
+<span class="n">x_tick_locs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ratings_views_persuasive</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span><span class="mf">0.0005</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x_tick_locs</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">x</span><span class="o">*</span><span class="mi">1000</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_tick_locs</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 Talks Rated Persuasive by Percentage&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Ratings per thousand views&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_18_0.png"></p>
+<p>Once again, here are links to these 10 talks.</p>
+<div class="highlight"><pre><span></span><span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_views_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;rank &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="n">u</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ranks_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>rank 1: https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal&gt;
+rank 2: https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade
+rank 3: https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change
+rank 4: https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa
+rank 5: https://www.ted.com/talks/philip_howard
+rank 6: https://www.ted.com/talks/bjorn_lomborg_sets_global_priorities
+rank 7: https://www.ted.com/talks/larry_lessig_says_the_law_is_strangling_creativity
+rank 8: https://www.ted.com/talks/garth_lenz_images_of_beauty_and_devastation
+rank 9: https://www.ted.com/talks/david_deutsch_on_our_place_in_the_cosmos
+rank 10: https://www.ted.com/talks/dan_dennett_on_dangerous_memes
+</pre></div>
+
+
+<p>By the  criteria of being rated persuasive by the largest percentage of viewers, the ten talks in the chart above are the most persuasive. "Why gun violence can't be our new normal" by Dan Gross, posted in March of 2016, is rated as the most persuasive. In contrast with the talk that satisfied the first criteria, this talk was posted relatively recently. It was given just over a year ago, and it has only received 1.2 million views compared to the 50.9 million views of "Do schools kill creativity?" For the sake of curiousity, let's once again look at the ratings distribution for the top-ranked talk.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">plot_df</span> <span class="o">=</span> <span class="n">ratings_views_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_views_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">plot_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">plot_df</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ratings Distribution for &quot;Why gun violence can</span><span class="se">\&#39;</span><span class="s1">t be our new normal&quot;&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Percentage of ratings&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_22_0.png"></p>
+<p>The ratings distribution here looks very different from that of "Do schools kill creativity?". "Inspiring" is still the top rating, which follows from the observation we made about it being the most commonly given rating by far, but "persuasive" is not far behind it at all. Also in contrast to the last talk, the ratings "informative" and "courageous" were given more frequenty, and almost no one rated this talk "funny".</p>
+<h3>Does this constitute "most persuasive"?</h3>
+<p>There are some potential flaws with saying that the highest percentage of viewers rating this persuasive makes it the most persuasive. To list a couple:
+<ul>
+    <li>This talk was not given very long ago, so it is possible that while a high percentage of people have found it persuasive in the past year, this might not hold true for future years.</li>
+    <li>Compared to other talks on TED, this talk has not received many views. It could be that fewer people are drawn to this particular topic, and if they are drawn to it, they may be more likely to rate it "persuasive" regardless of whether or not it changed their minds on the topic.</li> <br>
+</ul></p>
+<h2>Which talk was rated persuasive most frequently?</h2>
+<div class="highlight"><pre><span></span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;date_str&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span>
+<span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;date_str&#39;</span><span class="p">])</span>
+<span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;days_posted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">last_update</span><span class="o">-</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;days_posted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;days_posted&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">ratings_time_df</span> <span class="o">=</span> <span class="n">divide_df_series</span><span class="p">(</span><span class="n">TED_ratings_df</span><span class="p">,</span> <span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;days_posted&#39;</span><span class="p">])</span>
+<span class="n">ratings_time_persuasive</span> <span class="o">=</span> <span class="n">ratings_time_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">ratings_time_persuasive</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_time_persuasive</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;magma&#39;</span><span class="p">)</span>
+
+<span class="c1"># x_tick_locs = np.arange(0,ratings_views_persuasive.max(),0.0005)</span>
+<span class="c1"># ax = plt.gca()</span>
+<span class="c1"># ax.set_xticks(x_tick_locs)</span>
+<span class="c1"># ax.set_xticklabels([x*1000 for x in x_tick_locs])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 Talks Rated Persuasive by Frequency&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Average &quot;persuasive&quot; rating per day&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_27_0.png"></p>
+<div class="highlight"><pre><span></span><span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_time_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+<span class="n">most_persuasive_urls</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;rank &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="n">u</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ranks_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>rank 1: https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise
+rank 2: https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal
+rank 3: https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are
+rank 4: https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action
+rank 5: https://www.ted.com/talks/guy_winch_how_to_fix_a_broken_heart
+rank 6: https://www.ted.com/talks/justin_baldoni_why_i_m_done_trying_to_be_man_enough
+rank 7: https://www.ted.com/talks/zachary_r_wood_why_it_s_worth_listening_to_people_we_disagree_with
+rank 8: https://www.ted.com/talks/laura_vanderkam_how_to_gain_control_of_your_free_time
+rank 9: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
+rank 10: https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dystopia_just_to_make_people_click_on_ads
+</pre></div>
+
+
+<p>By the  criteria of being rated persuasive by the largest percentage of viewers, the ten talks in the chart above are the most persuasive. "The brain-changing benefits of exercies" by Wendy Suzuki, posted in February of 2018, is rated as the most persuasive. This talk was posted most recently of any of the talks that might be considered the most persuasive so far. It was given just over 3 months ago, but it has received nearly 2.4 million views compared to the 1.2 million views of "Why gun violence can't be our new normal" and the 50.9 million views of "Do schools kill creativity?".  Both of these have been posted on TED.com for far longer, so it has received a remarkably large number of views in a short time. Here is the ratings distribution for this this talk.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">plot_df</span> <span class="o">=</span> <span class="n">ratings_time_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_time_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">plot_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">plot_df</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ratings Distribution for &quot;The brain-changing benefits of exercise&quot;&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Ratings per day&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_30_0.png"></p>
+<p>Once again, "inspiring" is the most common rating given, but it is followed very closely by "informative". "Persuasive" is a rather distant third, especially when compared to "Why gun violence can't be our new normal".  </p>
+<p>Looking at the rating distribution for the most persuasive talks, apart from "inspiring" being the top-most rating each tends to have a fairly unique distribution of ratings. Discounting the rating of "inspiring", "Do schools kill creativity?" was rated "funny" above any other rating, "Why gun violence can't be our new normal" had "persuasive" as it's top rating, and "The brain-changing benefits of exercise" is highly rated as "informative". The differences continue from there, with the main consistency being that negative ratings are given very seldomly.</p>
+<h3>Does this constitute "most persuasive"?</h3>
+<p>As with any criteria we could choose, there are some potential flaws to consider with this one:
+<ul>
+    <li>As with "Gun violence can't be our new normal" this talk was posted recently, and far more recently than that one was. Balancing that somewhat, this talk has already received far more views.</li>
+    <li>Given the fact that this talk was posted recently and already received so many views, it seems likely that this talk would have more ratings per day overall, so the fact that it received so many "persuasive" ratings since it was posted may just be a by-product of receiving a lot of ratings in every category during that time.</li>
+</ul></p>
+<h2>So which talk should we consider most persuasive?</h2>
+<p>There is one more route to answering this question that can be taken - we can combine all of the possible criteria. Looking closely, we can observe that there are certain talks that show up on more than one list above. If we assign points to the talks based on their ranking using each method, we can add those points and determine which talks are most persuasive between all methods combined.</p>
+<p>To do this, if a talk was ranked 1 using a certain method, I assigned it 10 points. If it was ranked 2, I assigned it 9 points. If it was ranked 10, I assigned 1 point. This method yielded the following results:</p>
+<div class="highlight"><pre><span></span><span class="n">combined_rank_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">ranks_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
+<span class="n">combined_rank_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span>
+<span class="n">combined_rank_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+<span class="n">combined_rank_df</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+<span class="n">combined_rank_df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;speaker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">url</span><span class="p">,</span> <span class="s1">&#39;speaker&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">url</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">url</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">combined_rank_df</span><span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">combined_rank_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;magma&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 Talks Rated Persuasive by Combined Rankings&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;&quot;Most Persuasive&quot; by combined rankings&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="png" src="./images/TED-persuasive-images/output_34_0.png"></p>
+<p>"Why gun violence can't be our new normal" by Dan Gross turns out to be the most persuasive TED talk using the combined metric. Looking at rankings above, we can see that, not only was it the talk that was rated persuasive by the largest percentage of viewers, but it was also ranked second for the number of "persuasive" ratings it perceived per day. This gave it a combined point total of 19.</p>
+<p>It's interesting to note that neither of the other top-most ranked titles are in the top 3 most persuasive talks using the combined metric. "How great leaders inspire action" by Simon Sinek, given in May 2010, and "Your body language may shape who you are" by Amy Cuddy, given in October 2012, each have 16 points. This is because each is well ranked under two out of the three different criteria we explored. Here are links to the top ten "most persuasive" TED talks using the combined criteria:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Point total of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">combined_rank_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span><span class="s1">&#39;rank&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>Point total of 6: https://www.ted.com/talks/philip_howard
+Point total of 7: https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa
+Point total of 7: https://www.ted.com/talks/dan_pink_on_motivation
+Point total of 8: https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change
+Point total of 9: https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade
+Point total of 10: https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise
+Point total of 10: https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity
+Point total of 16: https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are
+Point total of 16: https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action
+Point total of 19: https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal
+</pre></div>
+
+
+<p>One thing that can be taken away from all of this, is that when trying to answer general questions like, "Which TED talk is most persuasive?", it is helpful to have a more specific criteria in mind. Questions such as "Which TED talk have the most people rated persuasive?", or "Which TED talk was rated persuasive most frequently?" are easier to answer due to their specificity. Otherwise the specifics have to be filled in or figured out, whether by yourself in the future or worse, by someone else who is taking a guess.</p>
+<p>I hope that you have found this exploration of persuasive TED talks interesting. If nothing else, you should have a solid list of TED talks to watch that many people have found inspiring and persuasive.</p>
+  </div>
+</article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+       <ul class="col-sm-6 list-inline">
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/authors.html">Authors</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/archives.html">Archives</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/categories.html">Categories</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/tags.html">Tags</a></li>
+        </ul>
+        <p class="col-sm-6 text-sm-right text-muted">
+          Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a> / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>
