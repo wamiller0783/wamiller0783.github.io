@@ -125,7 +125,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_5_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_5_0.png"></p>
 <p>There are a couple of important pieces of information we can take away from these plots.  </p>
 <p>First, a rating of "persuasive" is not very common overall. "Inspiring" is over twice as common with a lot more talks with unusually high number of this rating. Ratings of "informative" and "fascinating" are also ratings that are a lot more common.  </p>
 <p>Second, while "persuasive" is not the most commonly given rating, talks that are often rated as such do tend to have a large number of views. It appears that talks that are rated "persuasive" do draw viewers nearly as much as those that are "inspiring", "informative", or "fascinating" even though those ratings are far more common.  </p>
@@ -150,7 +150,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_9_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_9_0.png"></p>
 <p>I'm including links to these talks below, in case anyone is as intrigued by then as I am.</p>
 <div class="highlight"><pre><span></span><span class="n">ranks_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 <span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
@@ -185,7 +185,7 @@ rank 10: <a href="https://www.ted.com/talks/julian_treasure_how_to_speak_so_that
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_14_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_14_0.png"></p>
 <h3>Does this constitute "most persuasive"?</h3>
 <p>This is an interesting result - the TED talk that has been rated as "persuasive" by the most people was rated as "inspiring", "funny, "fascinating" by far more people. There could be a number of reasons for this, and I'd like to take a bit of time to explore them.
 <ul>
@@ -220,7 +220,7 @@ rank 10: <a href="https://www.ted.com/talks/julian_treasure_how_to_speak_so_that
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_19_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_19_0.png"></p>
 <p>Once again, here are links to these 10 talks.</p>
 <div class="highlight"><pre><span></span><span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_views_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
@@ -253,7 +253,7 @@ rank 10: <a href="https://www.ted.com/talks/dan_dennett_on_dangerous_memes">http
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_24_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_24_0.png"></p>
 <p>The ratings distribution here looks very different from that of "Do schools kill creativity?". "Inspiring" is still the top rating, which follows from the observation we made about it being the most commonly given rating by far, but "persuasive" is not far behind it at all. Also in contrast to the last talk, the ratings "informative" and "courageous" were given more frequenty, and almost no one rated this talk "funny".</p>
 <h3>Does this constitute "most persuasive"?</h3>
 <p>There are some potential flaws with saying that the highest percentage of viewers rating this persuasive makes it the most persuasive. To list a couple:
@@ -284,7 +284,7 @@ rank 10: <a href="https://www.ted.com/talks/dan_dennett_on_dangerous_memes">http
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_29_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_29_0.png"></p>
 <div class="highlight"><pre><span></span><span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_time_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
 <span class="n">most_persuasive_urls</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
@@ -317,7 +317,7 @@ rank 10: <a href="https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dyst
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_33_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_33_0.png"></p>
 <p>Once again, "inspiring" is the most common rating given, but it is followed very closely by "informative". "Persuasive" is a rather distant third, especially when compared to "Why gun violence can't be our new normal".  </p>
 <p>Looking at the rating distribution for the most persuasive talks, apart from "inspiring" being the top-most rating each tends to have a fairly unique distribution of ratings. Discounting the rating of "inspiring", "Do schools kill creativity?" was rated "funny" above any other rating, "Why gun violence can't be our new normal" had "persuasive" as it's top rating, and "The brain-changing benefits of exercise" is highly rated as "informative". The differences continue from there, with the main consistency being that negative ratings are given very seldomly.</p>
 <h3>Does this constitute "most persuasive"?</h3>
@@ -346,7 +346,7 @@ rank 10: <a href="https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dyst
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/(output_37_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/output_37_0.png"></p>
 <p>"Why gun violence can't be our new normal" by Dan Gross turns out to be the most persuasive TED talk using the combined metric. Looking at rankings above, we can see that, not only was it the talk that was rated persuasive by the largest percentage of viewers, but it was also ranked second for the number of "persuasive" ratings it perceived per day. This gave it a combined point total of 19.</p>
 <p>It's interesting to note that neither of the other top-most ranked titles are in the top 3 most persuasive talks using the combined metric. "How great leaders inspire action" by Simon Sinek, given in May 2010, and "Your body language may shape who you are" by Amy Cuddy, given in October 2012, each have 16 points. This is because each is well ranked under two out of the three different criteria we explored. Here are links to the top ten "most persuasive" TED talks using the combined criteria:</p>
 <div class="highlight"><pre><span></span><span class="n">talk_comb_rank</span><span class="o">=</span><span class="mi">0</span>
@@ -367,7 +367,7 @@ rank 7 (8 points): <a href="https://www.ted.com/talks/david_keith_s_surprising_i
 rank 8 (7 points): <a href="https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa">https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa</a><br>
 rank 9 (7 points): <a href="https://www.ted.com/talks/dan_pink_on_motivation">https://www.ted.com/talks/dan_pink_on_motivation</a><br>
 rank 10 (6 points): <a href="https://www.ted.com/talks/philip_howard">https://www.ted.com/talks/philip_howard</a></p>
-<p>One thing that can be taken away from all of this, is that when trying to answer general questions like, "Which TED talk is most persuasive?", it is helpful to have a more specific criteria in mind. Questions such as "Which TED talk have the most people rated persuasive?", or "Which TED talk was rated persuasive most frequently?" are easier to answer due to their specificity. Otherwise the specifics have to be filled in or figured out, whether by yourself in the future or worse, by someone else who is taking a guess.</p>
+<p>One thing that can be taken away from all of this, is that when trying to answer general questions like, "Which TED talk is most persuasive?", it is helpful to have a more specific criteria in mind. Questions such as "Which TED talk have the most people rated persuasive?", or "Which TED talk was rated persuasive most frequently?" are easier to answer due to their specificity. Otherwise the specifics have to be filled in or figured out, whether by yourself in the future, or worse, by someone else who is taking a guess.</p>
 <p>I hope that you have found this exploration of persuasive TED talks interesting. If nothing else, you should have a solid list of TED talks to watch that many people have found inspiring and persuasive.</p>
   </div>
 </article>
