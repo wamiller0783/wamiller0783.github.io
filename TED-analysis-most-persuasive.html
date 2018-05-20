@@ -127,11 +127,11 @@
 
 <p><img alt="png" src="./images/TED-persuasive-images/output_5_0.png"></p>
 <p>There are a couple of important pieces of information we can take away from these plots.  </p>
-<p>First, a rating of "persuasive" is not very common overall. "Inspiring" is over twice as common with a lot more talks with unusually high number of this rating. Ratings of "informative" and "fascinating" are also ratings that are a lot more common.  </p>
+<p>First, a rating of "persuasive" is not very common overall. "Inspiring" is over twice as common with a lot more talks with unusually high number of this rating. Ratings of "informative" and "fascinating" are also a lot more common.  </p>
 <p>Second, while "persuasive" is not the most commonly given rating, talks that are often rated as such do tend to have a large number of views. It appears that talks that are rated "persuasive" do draw viewers nearly as much as those that are "inspiring", "informative", or "fascinating" even though those ratings are far more common.  </p>
 <h2>What do we mean by "most persuasive"?</h2>
-<p>Especially in data analysis, it is very important to know exactly what question it is that we are trying to answer. It turns out, the question of which TED talk is "most persuasive" is pretty ambiguous, and there are multiple ways to think about what constitutes "most persuasive".  </p>
-<p>Though there are likely more ways this question could be taken, there are three ways of thinking about "most persuasive" that I wish to explore here.
+<p>Especially in data analysis, it is very important to know precisely what question we are trying to answer. It turns out, the question of which TED talk is "most persuasive" is pretty ambiguous, and there are multiple ways to think about what constitutes "most persuasive".  </p>
+<p>Though there may be more ways this question could be taken, there are three ways of thinking about "most persuasive" that I wish to explore here.
 <ol>
     <li>"Most persuasive" could be considered a talk that has been <strong>rated as persuasive by the largest number of people overall.</strong>
     </li>
@@ -151,7 +151,7 @@
 
 
 <p><img alt="png" src="./images/TED-persuasive-images/output_9_0.png"></p>
-<p>I'm including links to these talks below, in case anyone is as intrigued by then as I am.</p>
+<p>I'm including links to these talks below, in case anyone is as intrigued by them as I am.</p>
 <div class="highlight"><pre><span></span><span class="n">ranks_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 <span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
