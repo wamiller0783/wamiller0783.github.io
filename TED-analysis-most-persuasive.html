@@ -125,7 +125,7 @@
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_5_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_5_0.png"></p>
 <p>There are a couple of important pieces of information we can take away from these plots.  </p>
 <p>First, a rating of "persuasive" is not very common overall. "Inspiring" is over twice as common with a lot more talks with unusually high number of this rating. Ratings of "informative" and "fascinating" are also ratings that are a lot more common.  </p>
 <p>Second, while "persuasive" is not the most commonly given rating, talks that are often rated as such do tend to have a large number of views. It appears that talks that are rated "persuasive" do draw viewers nearly as much as those that are "inspiring", "informative", or "fascinating" even though those ratings are far more common.  </p>
@@ -150,12 +150,12 @@
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_9_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_9_0.png"></p>
 <p>I'm including links to these talks below, in case anyone is as intrigued by then as I am.</p>
 <div class="highlight"><pre><span></span><span class="n">ranks_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 <span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">TED_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-<span class="c1">#    print(&#39;rank &#39; + str(i + 1) + &#39;:&#39;,u)</span>
+<span class="c1">#    print(&#39;rank &#39; + str(i + 1) + &#39;: &#39; + &quot;&lt;a href=\&quot;&quot;+ u +&#39;&quot;&gt;&#39; + u + &quot;&lt;/a&gt;  &quot;)</span>
     <span class="k">if</span> <span class="n">u</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ranks_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
     <span class="k">else</span><span class="p">:</span>
@@ -163,16 +163,16 @@
 </pre></div>
 
 
-<p>rank 1: https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity<br>
-rank 2: https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action<br>
-rank 3: https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are<br>
-rank 4: https://www.ted.com/talks/dan_pink_on_motivation<br>
-rank 5: https://www.ted.com/talks/brene_brown_on_vulnerability<br>
-rank 6: https://www.ted.com/talks/shawn_achor_the_happy_secret_to_better_work<br>
-rank 7: https://www.ted.com/talks/susan_cain_the_power_of_introverts<br>
-rank 8: https://www.ted.com/talks/jamie_oliver<br>
-rank 9: https://www.ted.com/talks/chimamanda_adichie_the_danger_of_a_single_story<br>
-rank 10: https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_want_to_listen  </p>
+<p>rank 1: <a href="https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity">https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity</a><br>
+rank 2: <a href="https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action">https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action</a><br>
+rank 3: <a href="https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are">https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are</a><br>
+rank 4: <a href="https://www.ted.com/talks/dan_pink_on_motivation">https://www.ted.com/talks/dan_pink_on_motivation</a><br>
+rank 5: <a href="https://www.ted.com/talks/brene_brown_on_vulnerability">https://www.ted.com/talks/brene_brown_on_vulnerability</a><br>
+rank 6: <a href="https://www.ted.com/talks/shawn_achor_the_happy_secret_to_better_work">https://www.ted.com/talks/shawn_achor_the_happy_secret_to_better_work</a><br>
+rank 7: <a href="https://www.ted.com/talks/susan_cain_the_power_of_introverts">https://www.ted.com/talks/susan_cain_the_power_of_introverts</a><br>
+rank 8: <a href="https://www.ted.com/talks/jamie_oliver">https://www.ted.com/talks/jamie_oliver</a><br>
+rank 9: <a href="https://www.ted.com/talks/chimamanda_adichie_the_danger_of_a_single_story">https://www.ted.com/talks/chimamanda_adichie_the_danger_of_a_single_story</a><br>
+rank 10: <a href="https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_want_to_listen">https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_want_to_listen</a>  </p>
 <p>The TED talk that the most people have rated persuasive appears to be "Do Schools Kill Creativity?" by Ken Robinson. It was given nearly 12 years ago in June of 2006, and it has been viewed a staggering 50.9 million times. Let's look at what other ratings people assigned to it.</p>
 <div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
 <span class="n">plot_df</span> <span class="o">=</span> <span class="n">TED_ratings_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -185,7 +185,7 @@ rank 10: https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_w
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_14_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_14_0.png"></p>
 <h3>Does this constitute "most persuasive"?</h3>
 <p>This is an interesting result - the TED talk that has been rated as "persuasive" by the most people was rated as "inspiring", "funny, "fascinating" by far more people. There could be a number of reasons for this, and I'd like to take a bit of time to explore them.
 <ul>
@@ -220,11 +220,11 @@ rank 10: https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_w
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_19_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_19_0.png"></p>
 <p>Once again, here are links to these 10 talks.</p>
 <div class="highlight"><pre><span></span><span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_views_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-<span class="c1">#    print(&#39;rank &#39; + str(i + 1) + &#39;:&#39;,u)</span>
+<span class="c1">#    print(&#39;rank &#39; + str(i + 1) + &#39;: &#39; + &quot;&lt;a href=\&quot;&quot;+ u +&#39;&quot;&gt;&#39; + u + &quot;&lt;/a&gt;  &quot;)</span>
     <span class="k">if</span> <span class="n">u</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ranks_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
     <span class="k">else</span><span class="p">:</span>
@@ -232,16 +232,16 @@ rank 10: https://www.ted.com/talks/julian_treasure_how_to_speak_so_that_people_w
 </pre></div>
 
 
-<p>rank 1: https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal<br>
-rank 2: https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade<br>
-rank 3: https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change<br>
-rank 4: https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa<br>
-rank 5: https://www.ted.com/talks/philip_howard<br>
-rank 6: https://www.ted.com/talks/bjorn_lomborg_sets_global_priorities<br>
-rank 7: https://www.ted.com/talks/larry_lessig_says_the_law_is_strangling_creativity<br>
-rank 8: https://www.ted.com/talks/garth_lenz_images_of_beauty_and_devastation<br>
-rank 9: https://www.ted.com/talks/david_deutsch_on_our_place_in_the_cosmos<br>
-rank 10: https://www.ted.com/talks/dan_dennett_on_dangerous_memes  </p>
+<p>rank 1: <a href="https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal">https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal</a><br>
+rank 2: <a href="https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade">https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade</a><br>
+rank 3: <a href="https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change">https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change</a><br>
+rank 4: <a href="https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa">https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa</a><br>
+rank 5: <a href="https://www.ted.com/talks/philip_howard">https://www.ted.com/talks/philip_howard</a><br>
+rank 6: <a href="https://www.ted.com/talks/bjorn_lomborg_sets_global_priorities">https://www.ted.com/talks/bjorn_lomborg_sets_global_priorities</a><br>
+rank 7: <a href="https://www.ted.com/talks/larry_lessig_says_the_law_is_strangling_creativity">https://www.ted.com/talks/larry_lessig_says_the_law_is_strangling_creativity</a><br>
+rank 8: <a href="https://www.ted.com/talks/garth_lenz_images_of_beauty_and_devastation">https://www.ted.com/talks/garth_lenz_images_of_beauty_and_devastation</a><br>
+rank 9: <a href="https://www.ted.com/talks/david_deutsch_on_our_place_in_the_cosmos">https://www.ted.com/talks/david_deutsch_on_our_place_in_the_cosmos</a><br>
+rank 10: <a href="https://www.ted.com/talks/dan_dennett_on_dangerous_memes">https://www.ted.com/talks/dan_dennett_on_dangerous_memes</a>  </p>
 <p>By the  criteria of being rated persuasive by the largest percentage of viewers, the ten talks in the chart above are the most persuasive. "Why gun violence can't be our new normal" by Dan Gross, posted in March of 2016, is rated as the most persuasive. In contrast with the talk that satisfied the first criteria, this talk was posted relatively recently. It was given just over a year ago, and it has only received 1.2 million views compared to the 50.9 million views of "Do schools kill creativity?" For the sake of curiousity, let's once again look at the ratings distribution for the top-ranked talk.</p>
 <div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
 <span class="n">plot_df</span> <span class="o">=</span> <span class="n">ratings_views_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_views_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -253,7 +253,7 @@ rank 10: https://www.ted.com/talks/dan_dennett_on_dangerous_memes  </p>
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_24_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_24_0.png"></p>
 <p>The ratings distribution here looks very different from that of "Do schools kill creativity?". "Inspiring" is still the top rating, which follows from the observation we made about it being the most commonly given rating by far, but "persuasive" is not far behind it at all. Also in contrast to the last talk, the ratings "informative" and "courageous" were given more frequenty, and almost no one rated this talk "funny".</p>
 <h3>Does this constitute "most persuasive"?</h3>
 <p>There are some potential flaws with saying that the highest percentage of viewers rating this persuasive makes it the most persuasive. To list a couple:
@@ -284,11 +284,11 @@ rank 10: https://www.ted.com/talks/dan_dennett_on_dangerous_memes  </p>
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_29_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_29_0.png"></p>
 <div class="highlight"><pre><span></span><span class="n">most_persuasive_urls</span> <span class="o">=</span> <span class="n">TED_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_time_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
 <span class="n">most_persuasive_urls</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">most_persuasive_urls</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-<span class="c1">#    print(&#39;rank &#39; + str(i + 1) + &#39;:&#39;,u)</span>
+<span class="c1">#    print(&#39;rank &#39; + str(i + 1) + &#39;: &#39; + &quot;&lt;a href=\&quot;&quot;+ u +&#39;&quot;&gt;&#39; + u + &quot;&lt;/a&gt;  &quot;)</span>
     <span class="k">if</span> <span class="n">u</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ranks_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">ranks_dict</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">-</span><span class="n">i</span>
     <span class="k">else</span><span class="p">:</span>
@@ -296,16 +296,16 @@ rank 10: https://www.ted.com/talks/dan_dennett_on_dangerous_memes  </p>
 </pre></div>
 
 
-<p>rank 1: https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise<br>
-rank 2: https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal<br>
-rank 3: https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are<br>
-rank 4: https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action<br>
-rank 5: https://www.ted.com/talks/guy_winch_how_to_fix_a_broken_heart<br>
-rank 6: https://www.ted.com/talks/justin_baldoni_why_i_m_done_trying_to_be_man_enough<br>
-rank 7: https://www.ted.com/talks/zachary_r_wood_why_it_s_worth_listening_to_people_we_disagree_with<br>
-rank 8: https://www.ted.com/talks/laura_vanderkam_how_to_gain_control_of_your_free_time<br>
-rank 9: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator<br>
-rank 10: https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dystopia_just_to_make_people_click_on_ads  </p>
+<p>rank 1: <a href="https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise">https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise</a><br>
+rank 2: <a href="https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal">https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal</a><br>
+rank 3: <a href="https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are">https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are</a><br>
+rank 4: <a href="https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action">https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action</a><br>
+rank 5: <a href="https://www.ted.com/talks/guy_winch_how_to_fix_a_broken_heart">https://www.ted.com/talks/guy_winch_how_to_fix_a_broken_heart</a><br>
+rank 6: <a href="https://www.ted.com/talks/justin_baldoni_why_i_m_done_trying_to_be_man_enough">https://www.ted.com/talks/justin_baldoni_why_i_m_done_trying_to_be_man_enough</a><br>
+rank 7: <a href="https://www.ted.com/talks/zachary_r_wood_why_it_s_worth_listening_to_people_we_disagree_with">https://www.ted.com/talks/zachary_r_wood_why_it_s_worth_listening_to_people_we_disagree_with</a><br>
+rank 8: <a href="https://www.ted.com/talks/laura_vanderkam_how_to_gain_control_of_your_free_time">https://www.ted.com/talks/laura_vanderkam_how_to_gain_control_of_your_free_time</a><br>
+rank 9: <a href="https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator">https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator</a><br>
+rank 10: <a href="https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dystopia_just_to_make_people_click_on_ads">https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dystopia_just_to_make_people_click_on_ads</a>  </p>
 <p>By the  criteria of being rated persuasive by the largest percentage of viewers, the ten talks in the chart above are the most persuasive. "The brain-changing benefits of exercies" by Wendy Suzuki, posted in February of 2018, is rated as the most persuasive. This talk was posted most recently of any of the talks that might be considered the most persuasive so far. It was given just over 3 months ago, but it has received nearly 2.4 million views compared to the 1.2 million views of "Why gun violence can't be our new normal" and the 50.9 million views of "Do schools kill creativity?".  Both of these have been posted on TED.com for far longer, so it has received a remarkably large number of views in a short time. Here is the ratings distribution for this this talk.</p>
 <div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
 <span class="n">plot_df</span> <span class="o">=</span> <span class="n">ratings_time_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ratings_time_df</span><span class="p">[</span><span class="s1">&#39;rated_persuasive&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -317,7 +317,7 @@ rank 10: https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dystopia_just
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_33_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_33_0.png"></p>
 <p>Once again, "inspiring" is the most common rating given, but it is followed very closely by "informative". "Persuasive" is a rather distant third, especially when compared to "Why gun violence can't be our new normal".  </p>
 <p>Looking at the rating distribution for the most persuasive talks, apart from "inspiring" being the top-most rating each tends to have a fairly unique distribution of ratings. Discounting the rating of "inspiring", "Do schools kill creativity?" was rated "funny" above any other rating, "Why gun violence can't be our new normal" had "persuasive" as it's top rating, and "The brain-changing benefits of exercise" is highly rated as "informative". The differences continue from there, with the main consistency being that negative ratings are given very seldomly.</p>
 <h3>Does this constitute "most persuasive"?</h3>
@@ -346,26 +346,27 @@ rank 10: https://www.ted.com/talks/zeynep_tufekci_we_re_building_a_dystopia_just
 </pre></div>
 
 
-<p><img alt="png" src="./images/TED-persuasive-images/output_37_0.png"></p>
+<p><img alt="png" src="./images/TED-persuasive-images/(output_37_0.png"></p>
 <p>"Why gun violence can't be our new normal" by Dan Gross turns out to be the most persuasive TED talk using the combined metric. Looking at rankings above, we can see that, not only was it the talk that was rated persuasive by the largest percentage of viewers, but it was also ranked second for the number of "persuasive" ratings it perceived per day. This gave it a combined point total of 19.</p>
 <p>It's interesting to note that neither of the other top-most ranked titles are in the top 3 most persuasive talks using the combined metric. "How great leaders inspire action" by Simon Sinek, given in May 2010, and "Your body language may shape who you are" by Amy Cuddy, given in October 2012, each have 16 points. This is because each is well ranked under two out of the three different criteria we explored. Here are links to the top ten "most persuasive" TED talks using the combined criteria:</p>
 <div class="highlight"><pre><span></span><span class="n">talk_comb_rank</span><span class="o">=</span><span class="mi">0</span>
-<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;rank&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+<span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">combined_rank_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;rank&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
     <span class="n">talk_comb_rank</span> <span class="o">+=</span> <span class="mi">1</span>
-<span class="c1">#    print(&quot;Rank &quot; + str(talk_comb_rank) + &quot; (&quot; + str(combined_rank_df.loc[idx,&#39;rank&#39;]) + &quot; points): &quot; + idx)</span>
+<span class="c1">#    print(&#39;rank &#39; + str(talk_comb_rank) + &#39; (&#39; + str(combined_rank_df.loc[u, &#39;rank&#39;]) +&#39; points): &#39;\</span>
+<span class="c1">#          + &quot;&lt;a href=\&quot;&quot;+ u +&#39;&quot;&gt;&#39; + u + &quot;&lt;/a&gt;  &quot;)</span>
 </pre></div>
 
 
-<p>Rank 1 (19 points): https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal<br>
-Rank 2 (16 points): https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are<br>
-Rank 3 (16 points): https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action<br>
-Rank 4 (10 points): https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise<br>
-Rank 5 (10 points): https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity<br>
-Rank 6 (9 points): https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade<br>
-Rank 7 (8 points): https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change<br>
-Rank 8 (7 points): https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa<br>
-Rank 9 (7 points): https://www.ted.com/talks/dan_pink_on_motivation<br>
-Rank 10 (6 points): https://www.ted.com/talks/philip_howard  </p>
+<p>rank 1 (19 points): <a href="https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal">https://www.ted.com/talks/dan_gross_why_gun_violence_can_t_be_our_new_normal</a><br>
+rank 2 (16 points): <a href="https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are">https://www.ted.com/talks/amy_cuddy_your_body_language_shapes_who_you_are</a><br>
+rank 3 (16 points): <a href="https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action">https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action</a><br>
+rank 4 (10 points): <a href="https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise">https://www.ted.com/talks/wendy_suzuki_the_brain_changing_benefits_of_exercise</a><br>
+rank 5 (10 points): <a href="https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity">https://www.ted.com/talks/ken_robinson_says_schools_kill_creativity</a><br>
+rank 6 (9 points): <a href="https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade">https://www.ted.com/talks/ngozi_okonjo_iweala_on_aid_versus_trade</a><br>
+rank 7 (8 points): <a href="https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change">https://www.ted.com/talks/david_keith_s_surprising_ideas_on_climate_change</a><br>
+rank 8 (7 points): <a href="https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa">https://www.ted.com/talks/andrew_mwenda_takes_a_new_look_at_africa</a><br>
+rank 9 (7 points): <a href="https://www.ted.com/talks/dan_pink_on_motivation">https://www.ted.com/talks/dan_pink_on_motivation</a><br>
+rank 10 (6 points): <a href="https://www.ted.com/talks/philip_howard">https://www.ted.com/talks/philip_howard</a></p>
 <p>One thing that can be taken away from all of this, is that when trying to answer general questions like, "Which TED talk is most persuasive?", it is helpful to have a more specific criteria in mind. Questions such as "Which TED talk have the most people rated persuasive?", or "Which TED talk was rated persuasive most frequently?" are easier to answer due to their specificity. Otherwise the specifics have to be filled in or figured out, whether by yourself in the future or worse, by someone else who is taking a guess.</p>
 <p>I hope that you have found this exploration of persuasive TED talks interesting. If nothing else, you should have a solid list of TED talks to watch that many people have found inspiring and persuasive.</p>
   </div>
