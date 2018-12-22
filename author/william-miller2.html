@@ -1,1007 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-		<title>Epiousios &mdash; Articles by William Miller</title>
-		<meta charset="utf-8" />
-		<link rel="profile" href="http://gmpg.org/xfn/11" />
-		<link rel="stylesheet" type="text/css" href="/theme/css/style.css" />
-		<link rel='stylesheet' id='oswald-css'  href='http://fonts.googleapis.com/css?family=Oswald&#038;ver=3.3.2' type='text/css' media='all' />
-		<style type="text/css">
-			body.custom-background { background-color: #f5f5f5; }
-		</style>
-		<link rel="alternate" type="application/atom+xml"
-			title="Epiousios — Flux Atom"
-			href="/" />
-		<!--[if lte IE 8]><script src="/theme/js/html5shiv.js"></script><![endif]-->
+  <!-- Required meta tags always come first -->
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>William Miller Articles | William Miller's Projects
+</title>
+  <link rel="canonical" href="https://wamiller0783.github.io/author/william-miller2.html">
+
+
+
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/style.css">
+
+
+<script>
+  (function(i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function() {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o);
+    a.async = 1;
+    a.src = g;
+    m = s.getElementsByTagName(o)[0];
+    m.parentNode.insertBefore(a, m)
+  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+  ga('create', 'UA-119561301-1', 'auto');
+  ga('send', 'pageview');
+</script>
 </head>
 
-<body class="home blog custom-background " >
-	<div id="container">
-		<div id="header">
-				<h1 id="site-title"><a href="">Epiousios</a></h1>
-<h2 id="site-description">Searching for Patterns that Matter</h2>		</div><!-- /#banner -->
-
-		<div id="menu">
-			<div class="menu-navigation-container">
-				<ul id="menu-navigation" class="menu">
-						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/machine-learning.html">Machine Learning</a></li>
-						<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/category/web-scraping.html">Web Scraping</a></li>
-						<li  class="active" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.linkedin.com/in/william-miller-88a37b159/">My LinkedIn</a></li>
-
-				</ul>
-			</div> <!--/#menu-navigation-container-->
-		</div><!-- /#menu -->
-
-		<div class="page-title">
-	<h2>Posted by <span>William Miller</span> &hellip;</h2>
-		</div>
-
-		<div id="contents">
-<div class="post type-post status-publish format-standard hentry category-general" id="post">
-	<div class="entry-meta">
-		<div class="date"><a href="/titanic-survivor-post.html">Tue 10 April 2018</a></div>
-		<span class="byline">By <a href="/author/william-miller.html">William Miller</a></span>
-			<span class="cat-links"><a href="/category/machine-learning.html" title="View all posts in Machine Learning" rel="category tag">Machine Learning</a></span>
-	</div> <!-- /#entry-meta -->
-	<div class="main">
-		<h2 class="entry-title">
-			<a href="/titanic-survivor-post.html" title="Permalink to Titanic Survivor Prediction" rel="bookmark">Titanic Survivor Prediction</a>
-		</h2>
-		<div class="entry-content">
-			<h2>Import libraries</h2>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">random</span> <span class="kn">as</span> <span class="nn">rnd</span>
-
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-</pre></div>
-
-
-<h2>Load data and perform initial evaluation</h2>
-<p>At the outset, I will print out an information call for the training and testing sets and sample of the training set. This will be a lot to look through, up front, but it will be valuable for planning how to proceed.</p>
-<div class="highlight"><pre><span></span><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./input/train.csv&#39;</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./input/test.csv&#39;</span><span class="p">)</span>
-
-
-<span class="n">combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">]</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-RangeIndex: 891 entries, 0 to 890
-Data columns (total 12 columns):
-PassengerId    891 non-null int64
-Survived       891 non-null int64
-Pclass         891 non-null int64
-Name           891 non-null object
-Sex            891 non-null object
-Age            714 non-null float64
-SibSp          891 non-null int64
-Parch          891 non-null int64
-Ticket         891 non-null object
-Fare           891 non-null float64
-Cabin          204 non-null object
-Embarked       889 non-null object
-dtypes: float64(2), int64(5), object(5)
-memory usage: 83.6+ KB
-None
-&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-RangeIndex: 418 entries, 0 to 417
-Data columns (total 11 columns):
-PassengerId    418 non-null int64
-Pclass         418 non-null int64
-Name           418 non-null object
-Sex            418 non-null object
-Age            332 non-null float64
-SibSp          418 non-null int64
-Parch          418 non-null int64
-Ticket         418 non-null object
-Fare           417 non-null float64
-Cabin          91 non-null object
-Embarked       418 non-null object
-dtypes: float64(2), int64(4), object(5)
-memory usage: 36.0+ KB
-None
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>     PassengerId  Survived  Pclass  \
-440          441         1       2   
-518          519         1       2   
-362          363         0       3   
-584          585         0       3   
-835          836         1       1   
-77            78         0       3   
-866          867         1       2   
-496          497         1       1   
-201          202         0       3   
-246          247         0       3   
-780          781         1       3   
-239          240         0       2   
-99           100         0       2   
-365          366         0       3   
-550          551         1       1   
-814          815         0       3   
-340          341         1       2   
-212          213         0       3   
-783          784         0       3   
-671          672         0       1
-
-                                                  Name     Sex   Age  SibSp  \
-440        Hart, Mrs. Benjamin (Esther Ada Bloomfield)  female  45.0      1   
-518  Angle, Mrs. William A (Florence &quot;Mary&quot; Agnes H...  female  36.0      1   
-362                    Barbara, Mrs. (Catherine David)  female  45.0      0   
-584                                Paulner, Mr. Uscher    male   NaN      0   
-835                        Compton, Miss. Sara Rebecca  female  39.0      1   
-77                            Moutal, Mr. Rahamin Haim    male   NaN      0   
-866                       Duran y More, Miss. Asuncion  female  27.0      1   
-496                     Eustis, Miss. Elizabeth Mussey  female  54.0      1   
-201                                Sage, Mr. Frederick    male   NaN      8   
-246              Lindahl, Miss. Agda Thorilda Viktoria  female  25.0      0   
-780                               Ayoub, Miss. Banoura  female  13.0      0   
-239                             Hunt, Mr. George Henry    male  33.0      0   
-99                                   Kantor, Mr. Sinai    male  34.0      1   
-365                     Adahl, Mr. Mauritz Nils Martin    male  30.0      0   
-550                        Thayer, Mr. John Borland Jr    male  17.0      0   
-814                         Tomlin, Mr. Ernest Portage    male  30.5      0   
-340                     Navratil, Master. Edmond Roger    male   2.0      1   
-212                             Perkin, Mr. John Henry    male  22.0      0   
-783                             Johnston, Mr. Andrew G    male   NaN      1   
-671                             Davidson, Mr. Thornton    male  31.0      1
-
-     Parch         Ticket      Fare Cabin Embarked  
-440      1   F.C.C. 13529   26.2500   NaN        S  
-518      0         226875   26.0000   NaN        S  
-362      1           2691   14.4542   NaN        C  
-584      0           3411    8.7125   NaN        C  
-835      1       PC 17756   83.1583   E49        C  
-77       0         374746    8.0500   NaN        S  
-866      0  SC/PARIS 2149   13.8583   NaN        C  
-496      0          36947   78.2667   D20        C  
-201      2       CA. 2343   69.5500   NaN        S  
-246      0         347071    7.7750   NaN        S  
-780      0           2687    7.2292   NaN        C  
-239      0     SCO/W 1585   12.2750   NaN        S  
-99       0         244367   26.0000   NaN        S  
-365      0         C 7076    7.2500   NaN        S  
-550      2          17421  110.8833   C70        C  
-814      0         364499    8.0500   NaN        S  
-340      1         230080   26.0000    F2        S  
-212      0      A/5 21174    7.2500   NaN        S  
-783      2     W./C. 6607   23.4500   NaN        S  
-671      0     F.C. 12750   52.0000   B71        S
-</pre></div>
-
-
-<p>The description of the data reveals a few problems:
-<ul list-style-type: circle;>
-    <li>Age entries are incomplete in both training and testing data sets. These will need to be filled in either with mean ages, or with ages predicted by other data that correlates.</li>
-    <li>"Cabin" data is recorded very infrequently.</li>
-    <li>"Ticket" data appears noisy and difficult to parse, if it turns out to be useful at all.</li>
-    <li>A couple of entries in "Embarked" are missing.</li>
-    <li>One entry in "Fare" is missing in the test data.</li>
-</ul></p>
-<p>The sample reveals that there are also some adjustments that need to be made to the data:
-<ul list-style-type: circle;>
-    <li>"Sex" should be simplified to "0" and "1"</li>
-    <li>"Embarked" should be mapped to numerical values</li>
-    <li>Since all names include titles, it may be possible to isolate the titles and make use of them</li>
-    <li>"Ticket" can likely be dropped</li></p>
-<h2>Wrangle Data</h2>
-<p>Make changes determined in initial evaluation, in the following order:
-<ol>
-    <li>Fill in trivial missing values and convert to string categories to numerical</li>
-        <ol>
-        <li>Fill missing values in "Embarked"</li>
-        <li>Fill missing values in "Fare"</li>
-        <li>Change "Sex" and "Embarked" to numerical values.</li>
-        </ol><br>
-    <li>Add additional features, where possible.</li>
-            <ol>
-            <li>Create "Family_Size" feature from "SibSp" and "Parch"</li>
-            <li>If possible, extract titles from "Names" and replace names with titles.</li>
-            </ol><br>
-    <li>Determine best method for filling in missing age data.</li>     <br>
-    <li>Fill in missing age data</li>
-</ol></p>
-<p>From there, I will use XGBoost and RandomForest classifiers to make predictions from the resulting data, tune them to consistently yield accurate predictions, then choose the best of the two.</p>
-<p>Before proceeding any further, I will go ahead and set the index to "PassengerId"</p>
-<div class="highlight"><pre><span></span><span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PassengerId&#39;</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PassengerId&#39;</span><span class="p">)</span>
-<span class="n">combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">]</span>
-</pre></div>
-
-
-<h3>Fill trivial missing values, convert categorical strings to numerical</h3>
-<h5>Fill missing values in "Embarked" and "Fare"</h5>
-<div class="highlight"><pre><span></span><span class="n">port_mode</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">Embarked</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">fare_med</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">port_mode</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Fare&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span> <span class="p">[</span><span class="s1">&#39;Fare&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fare_med</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">port_mode</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">fare_med</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>S
-14.4542
-</pre></div>
-
-
-<h5>Map "Sex" and "Embarked" to numerical values</h5>
-<div class="highlight"><pre><span></span><span class="n">sex_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;female&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;male&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-<span class="n">embarked_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">sex_mapping</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Embarked&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">embarked_mapping</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>             Survived  Pclass  \
-PassengerId                     
-729                 0       2   
-732                 0       3   
-325                 0       3   
-716                 0       3   
-329                 1       3   
-625                 0       3   
-257                 1       1   
-395                 1       3   
-85                  1       2   
-828                 1       2
-
-                                                          Name  Sex   Age  \
-PassengerId                                                                 
-729                            Bryhl, Mr. Kurt Arnold Gottfrid    1  25.0   
-732                                   Hassan, Mr. Houssein G N    1  11.0   
-325                                   Sage, Mr. George John Jr    1   NaN   
-716                 Soholt, Mr. Peter Andreas Lauritz Andersen    1  19.0   
-329             Goldsmith, Mrs. Frank John (Emily Alice Brown)    0  31.0   
-625                                Bowen, Mr. David John &quot;Dai&quot;    1  21.0   
-257                             Thorne, Mrs. Gertrude Maybelle    0   NaN   
-395          Sandstrom, Mrs. Hjalmar (Agnes Charlotta Bengt...    0  24.0   
-85                                         Ilett, Miss. Bertha    0  17.0   
-828                                      Mallet, Master. Andre    1   1.0
-
-             SibSp  Parch           Ticket     Fare  Cabin  Embarked  
-PassengerId                                                           
-729              1      0           236853  26.0000    NaN         0  
-732              0      0             2699  18.7875    NaN         1  
-325              8      2         CA. 2343  69.5500    NaN         0  
-716              0      0           348124   7.6500  F G73         0  
-329              1      1           363291  20.5250    NaN         0  
-625              0      0            54636  16.1000    NaN         0  
-257              0      0         PC 17585  79.2000    NaN         1  
-395              0      2          PP 9549  16.7000     G6         0  
-85               0      0       SO/C 14885  10.5000    NaN         0  
-828              0      2  S.C./PARIS 2079  37.0042    NaN         1
-</pre></div>
-
-
-<h3>Extract additional features</h3>
-<p>It is always worth considering if additional features can be created out of existing ones that might prove useful for the purposes of prediction. It is always possible to see after a prediction is made which features were most useful, and anything that proved to be useless (or mostly so) can be dropped.</p>
-<h4>Investigate NaN significance</h4>
-<p>Before filling NaN data, it is worth exploring if there is a significant difference in survival rate between the data that is NaN versus that which is not. If there is a difference, it may be worth creating new binary features that store whether or not a value was NaN for that entry.</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;Mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Cabin not Nan mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Cabin NaN mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Age not Nan mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Age NaN mean survival rate: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()][</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Mean survival rate: 0.384
-
-Cabin not Nan mean survival rate: 0.667
-Cabin NaN mean survival rate: 0.300
-
-Age not Nan mean survival rate: 0.406
-Age NaN mean survival rate: 0.294
-</pre></div>
-
-
-<p>It appears that it will definitely be worth accounting for whether or not this data was present. For reasons that are not apparent from the data, there was 36.7% greater chance that a passenger survived if we have data for the cabin they stayed in. Though it's not quite as pronounced, there is also a significant difference in survival chance between passengers who were missing age data and those who were not.</p>
-<h4>Create "Cabin_Record" and "Age_Record" features</h4>
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-<span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Cabin_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-
-<span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-<span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age_Record&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
-
-<span class="n">train_df</span><span class="p">[[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">,</span> <span class="s1">&#39;Cabin_Record&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">,</span> <span class="s1">&#39;Age_Record&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</pre></div>
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Cabin</th>
-      <th>Cabin_Record</th>
-      <th>Age</th>
-      <th>Age_Record</th>
-    </tr>
-    <tr>
-      <th>PassengerId</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>696</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>52.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>666</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>32.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>262</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>3.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>761</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>A6</td>
-      <td>1</td>
-      <td>28.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>404</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>28.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>448</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>34.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>385</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>333</th>
-      <td>C91</td>
-      <td>1</td>
-      <td>38.0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>784</th>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<h4>Create "Family_Size" feature</h4>
-<p>One first possible additional feature to consider comes from the fact that Sibsp and Parch have some ambiguity built into them. It seems likely that there would be a significant difference in survival rate between people who traveled with their spouses versus their siblings, or parents versus their children. It might be beneficial to roll these into a single statistic of family size, as this will eliminate the inconsistency that is present in the 'SibSp' and 'Parch' data.</p>
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;SibSp&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Parch&#39;</span><span class="p">]</span>
-<span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;SibSp&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Parch&#39;</span><span class="p">]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()[</span><span class="s1">&#39;Parch&#39;</span><span class="p">]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Survived        0.081629
-Pclass          0.018443
-Sex            -0.245489
-Age            -0.189119
-SibSp           0.414838
-Parch           1.000000
-Fare            0.216225
-Embarked       -0.078665
-Cabin_Record    0.036987
-Age_Record      0.124104
-Family_Size     0.783111
-Name: Parch, dtype: float64
-</pre></div>
-
-
-<h4>Create "Title" feature</h4>
-<p>One can see from a sample of the data above that each name has an associated title, and that each appears to follow a similar format. While I've not shown this due to the amount of space required, I took several large samples to verify that this is the case for at least enough of the data that it might be useful. After extracting the "Title" info, I will look at how many titles their are, see if any entries are lacking titles, or if any titles may not be useful. It is simple enough to use regular expressions to extract the titles from the names.</p>
-<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s1">&#39; ([A-za-z]+)\.&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">reindex</span><span class="p">())</span>
-<span class="k">print</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reindex</span><span class="p">())</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>          Title        Age  Survived
-Title                               
-Capt          1  70.000000  0.000000
-Col           2  58.000000  0.500000
-Countess      1  33.000000  1.000000
-Don           1  40.000000  0.000000
-Dr            7  42.000000  0.428571
-Jonkheer      1  38.000000  0.000000
-Lady          1  48.000000  1.000000
-Major         2  48.500000  0.500000
-Master       40   4.574167  0.575000
-Miss        182  21.773973  0.697802
-Mlle          2  24.000000  1.000000
-Mme           1  24.000000  1.000000
-Mr          517  32.368090  0.156673
-Mrs         125  35.898148  0.792000
-Ms            1  28.000000  1.000000
-Rev           6  43.166667  0.000000
-Sir           1  49.000000  1.000000
-        Pclass  Name  Sex  Age  SibSp  Parch  Ticket  Fare  Cabin  Embarked  \
-Title                                                                         
-Col          2     2    2    2      2      2       2     2      2         2   
-Dona         1     1    1    1      1      1       1     1      1         1   
-Dr           1     1    1    1      1      1       1     1      1         1   
-Master      21    21   21   17     21     21      21    21      2        21   
-Miss        78    78   78   64     78     78      78    78     11        78   
-Mr         240   240  240  183    240    240     240   240     42       240   
-Mrs         72    72   72   62     72     72      72    72     32        72   
-Ms           1     1    1    0      1      1       1     1      0         1   
-Rev          2     2    2    2      2      2       2     2      0         2
-
-        Cabin_Record  Age_Record  Family_Size  
-Title                                          
-Col                2           2            2  
-Dona               1           1            1  
-Dr                 1           1            1  
-Master            21          21           21  
-Miss              78          78           78  
-Mr               240         240          240  
-Mrs               72          72           72  
-Ms                 1           1            1  
-Rev                2           2            2
-</pre></div>
-
-
-<p>It appears that title extraction worked and that the data may prove useful. Fortunately, every passenger has an associated title and there appear to be significant differences between the titles when it comes to average survival rate, sex, and age. There are, however, a large number of titles that represent an insignificant portion of the population, and these are not useful for the purposes of prediction, which means this requires some additional processing.</p>
-<h5>Tidy up title data, convert to numerical values</h5>
-<p>I will combine synonymous titles (e.g. "Ms" and "Miss"). I will remove the titles that occur with a frequency that is unlikely to be useful. I notice that the majority of infrequent titles correlate with the careers of males over 40, so I will combine these into their own category.</p>
-<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;Capt&#39;</span><span class="p">,</span> <span class="s1">&#39;Col&#39;</span><span class="p">,</span> <span class="s1">&#39;Don&#39;</span><span class="p">,</span> <span class="s1">&#39;Dr&#39;</span><span class="p">,</span> <span class="s1">&#39;Major&#39;</span><span class="p">,</span> <span class="s1">&#39;Rev&#39;</span><span class="p">,</span> <span class="s1">&#39;Sir&#39;</span><span class="p">],</span> <span class="s1">&#39;CareerMale&#39;</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Jonkheer&#39;</span><span class="p">,</span> <span class="s1">&#39;Mr&#39;</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;Countess&#39;</span><span class="p">,</span> <span class="s1">&#39;Mme&#39;</span><span class="p">,</span> <span class="s1">&#39;Lady&#39;</span><span class="p">],</span> <span class="s1">&#39;Mrs&#39;</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;Mlle&#39;</span><span class="p">,</span> <span class="s1">&#39;Ms&#39;</span><span class="p">],</span> <span class="s1">&#39;Miss&#39;</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">reindex</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">]))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">])</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">],</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>            Title        Age  Survived
-Title                                 
-CareerMale     20  46.473684  0.300000
-Master         40   4.574167  0.575000
-Miss          185  21.845638  0.702703
-Mr            518  32.382206  0.156371
-Mrs           128  35.873874  0.796875
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_28_1.png"></p>
-<p>It seems highly likely that there would be some kind of relationship between the "Title" and "Family_Size" features I've created. I will plot the two of those together and see if anything stands out.</p>
-<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Title&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">,</span> <span class="s1">&#39;Family_Size&#39;</span><span class="p">])</span>
-      <span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-      <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-      <span class="o">.</span><span class="n">pipe</span><span class="p">((</span><span class="n">sns</span><span class="o">.</span><span class="n">factorplot</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">),</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Title&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Survived&#39;</span><span class="p">))</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_30_0.png"></p>
-<p>The relationships here are obvious - those in the "CareerMale" category tended to travel with one other person, those in "Master" were in a group with at least 2 others (parents), and so on. It also seems clear that the higher a passenger's family size, the lower their chance of survival.</p>
-<p>Now to convert the title strings to numerical for future conversion to categories.</p>
-<div class="highlight"><pre><span></span><span class="n">title_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;CareerMale&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Mrs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Mr&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Miss&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Master&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
-
-<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">combine</span><span class="p">:</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">title_mapping</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-
-<span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="n">combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">]</span>
-</pre></div>
-
-
-<h4>Explore age significance.</h4>
-<p>I want to explore the hypothesis that accurately filling in the missing age data (as opposed to simply filling missing ages with the mean age) may have an effect in the accuracy of survival prediction. This requires that I first look at whether certain ages actually correlate to survival rates or not.</p>
-<div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">]))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span>
-            <span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()],</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Not Survived&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_34_1.png"></p>
-<p>It is clear that passengers under 18 had a higher survival rate. Passengers between the ages of 20 and 30 had a much lower survival rate than any other age. It is also apparent that a very low number of people over the age of 60 survived.</p>
-<h4>Complete missing age data</h4>
-<p>First I will see which features in the dataset have the highest correlation with "Age".</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()[</span><span class="s1">&#39;Age&#39;</span><span class="p">])</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Survived       -0.077221
-Pclass         -0.369226
-Sex             0.093254
-Age             1.000000
-SibSp          -0.308247
-Parch          -0.189119
-Fare            0.096067
-Embarked        0.010171
-Cabin_Record    0.249732
-Age_Record           NaN
-Family_Size    -0.301914
-Title          -0.510098
-Name: Age, dtype: float64
-</pre></div>
-
-
-<p>It is clear that "Title" has the highest corrleation, followed by "Pclass" and "Family_Size".</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Pclass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Pclass&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Family_Size&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Title&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;Survived&#39;</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>       Title        Age  Survived
-Title                            
-1         20  46.473684  0.300000
-2        128  35.873874  0.796875
-3        518  32.382206  0.156371
-4        185  21.845638  0.702703
-5         40   4.574167  0.575000
-
-        Pclass        Age  Survived
-Pclass                             
-1          216  38.233441  0.629630
-2          184  29.877630  0.472826
-3          491  25.140620  0.242363
-
-             Title        Age  Survived
-Family_Size                            
-0              537  32.220297  0.303538
-1              161  31.391511  0.552795
-2              102  26.035806  0.578431
-3               29  18.274815  0.724138
-4               15  20.818182  0.200000
-5               22  18.409091  0.136364
-6               12  15.166667  0.333333
-7                6  15.666667  0.000000
-10               7        NaN  0.000000
-</pre></div>
-
-
-<p>"Title" shows by far the highest correlation with "Age". "Pclass" does show a decent amount of difference in age between each class of passengers, with first class passengers tending to be older. "Parch" and "SibSp" each have a significant downside in that the majority of the data in each fall into a single category. While this is slightly less pronounced in "Family_Size", the first two categories have very little difference in average age and comprise the vast majority of that data.</p>
-<p>I will opt for a strategy of computing missing age data from averages using "Title" and "Pclass", which have the highest correlation with age by a large margin and have the added benefit of not creating large numbers of sub-groups when taking averages from grouped data.</p>
-<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Pclass&#39;</span><span class="p">,</span> <span class="s1">&#39;Title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Age&#39;</span><span class="p">:[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;count&#39;</span><span class="p">],</span>
-                                                                   <span class="s1">&#39;Survived&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span><span class="p">}),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>                    Age        Survived
-                   mean count      mean
-Pclass Title                           
-1      1      49.727273    11  0.500000
-       2      40.405405    37  0.977778
-       3      41.539773    88  0.342593
-       4      29.744681    47  0.958333
-       5       5.306667     3  1.000000
-2      1      42.000000     8  0.000000
-       2      33.682927    41  0.902439
-       3      32.768293    82  0.087912
-       4      22.560606    33  0.942857
-       5       2.258889     9  1.000000
-3      2      33.515152    33  0.500000
-       3      28.724891   229  0.112853
-       4      16.123188    69  0.500000
-       5       5.350833    24  0.392857
-</pre></div>
-
-
-<p>It is readily apparent that there is significant variation in age between each group. While it appears that some groups are still relatively large, there appears to be a larger deviation in the ages and survival rates between them. This seems to indicate that filling in the missing ages using these groups might improve our prediction.</p>
-<h4>Impute mean ages</h4>
-<p>One potential pitfall to keep in mind while doing this is that the smaller the subgroups get, the higher the likelihood they might be composed entirely of NaN values and would cause some age data to remain missing. In case I want to experiment with adding any additional sub-groups to aid in imputing missing "Age" data in the future, I'll write the code to impute the missing ages for the smallest subgroups, then moves up the hierarchy of groups until it's imputing from the most inclusive.</p>
-<div class="highlight"><pre><span></span><span class="n">index_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Pclass&#39;</span><span class="p">,</span> <span class="s1">&#39;Title&#39;</span><span class="p">]</span>
-<span class="n">index_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">end_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">index_length</span> <span class="o">-</span> <span class="n">end_index</span><span class="p">])[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span>\
-                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-    <span class="n">test_df</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">index_length</span> <span class="o">-</span> <span class="n">end_index</span><span class="p">])[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span>\
-                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">drop_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Cabin&#39;</span><span class="p">,</span> <span class="s1">&#39;Ticket&#39;</span><span class="p">]</span>
-<span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">train_df</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-Int64Index: 891 entries, 1 to 891
-Data columns (total 12 columns):
-Survived        891 non-null int64
-Pclass          891 non-null int64
-Sex             891 non-null int64
-Age             891 non-null float32
-SibSp           891 non-null int64
-Parch           891 non-null int64
-Fare            891 non-null float64
-Embarked        891 non-null int64
-Cabin_Record    891 non-null int64
-Age_Record      891 non-null int64
-Family_Size     891 non-null int64
-Title           891 non-null int64
-dtypes: float32(1), float64(1), int64(10)
-memory usage: 127.0 KB
-</pre></div>
-
-
-<h2>Test Algorithms for Best Prediction</h2>
-<ol>
-<li>Make a test run of XGBoost and Random Forest classifiers to see which makes the most accurate predictions.</li><br>
-<li>Use the results of this test run to eliminate the least useful features in the dataset, if necessary.</li><br>
-<li>If the performance of the classifiers is similar:</li>
-    <ol>
-    <li>Refine the tuning of each classifier</li>
-    <li>Compare the predictions of the re-tuned classifiers</li>
-    <li>Select the classifier that consistently makes the most accurate predictions from test data</li>
-    </ol><br>
-<li>Deploy the best algorithm and evalute the results (in this case, run it against the full set of test data and submit the results to the Kaggle competition).</li>
-</ol>
-
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
-
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
-<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span><span class="p">,</span> <span class="n">LinearSVC</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
-<span class="kn">from</span> <span class="nn">xgboost</span> <span class="kn">import</span> <span class="n">XGBClassifier</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">display_scores</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="s1">&#39; Scores:&#39;</span><span class="p">,</span> <span class="n">scores</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Mean:&#39;</span><span class="p">,</span> <span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Standard Deviation&#39;</span><span class="p">,</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">X_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Survived&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s1">&#39;Survived&#39;</span><span class="p">]</span>
-
-<span class="n">x_test</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-
-<span class="n">xgb_try</span> <span class="o">=</span> <span class="n">XGBClassifier</span><span class="p">()</span>
-<span class="n">rfc_try</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">()</span>
-
-<span class="n">clf_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">xgb_try</span><span class="p">,</span> <span class="n">rfc_try</span><span class="p">]</span>
-
-<span class="n">clf_name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">,</span> <span class="s1">&#39;Random Forest&#39;</span><span class="p">]</span>
-
-
-<span class="n">clf_score_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">clf_features_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">clf</span> <span class="ow">in</span> <span class="n">clf_list</span><span class="p">:</span>
-    <span class="n">clf_name</span> <span class="o">=</span> <span class="n">clf_name_list</span><span class="p">[</span><span class="n">clf_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">clf</span><span class="p">)]</span>
-    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">clf_scores</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">clf_score_dict</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clf_scores</span><span class="p">)</span>
-    <span class="n">display_scores</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">clf_scores</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">clf_name</span> <span class="ow">in</span> <span class="n">clf_name_list</span><span class="p">:</span>
-        <span class="n">clf_features_dict</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>XGBClassifier(base_score=0.5, booster=&#39;gbtree&#39;, colsample_bylevel=1,
-       colsample_bytree=1, gamma=0, learning_rate=0.1, max_delta_step=0,
-       max_depth=3, min_child_weight=1, missing=None, n_estimators=100,
-       n_jobs=1, nthread=None, objective=&#39;binary:logistic&#39;, random_state=0,
-       reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=None,
-       silent=True, subsample=1)  Scores: [ 81.11111111  81.11111111  77.52808989  88.76404494  91.01123596
-  83.14606742  83.14606742  78.65168539  84.26966292  85.22727273]
-Mean: 83.3966348882
-Standard Deviation 3.98034954593
-
-RandomForestClassifier(bootstrap=True, class_weight=None, criterion=&#39;gini&#39;,
-            max_depth=None, max_features=&#39;auto&#39;, max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=1, min_samples_split=2,
-            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
-            oob_score=False, random_state=None, verbose=0,
-            warm_start=False)  Scores: [ 76.66666667  77.77777778  76.40449438  86.51685393  83.14606742
-  85.39325843  82.02247191  75.28089888  83.14606742  89.77272727]
-Mean: 81.6127284077
-Standard Deviation 4.64958839675
-</pre></div>
-
-
-<p>While the above is a thorough textual representation of how each classifier performs, it can be a lot to parse, so I'm going to translate this to a visual format.</p>
-<div class="highlight"><pre><span></span><span class="n">clf_score_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">clf_score_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
-
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">clf_score_df</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">clf_score_df</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_53_0.png"></p>
-<p>Gradient Boosting appears to have a slight edge over Random Forest, and it seems to perform more consistently, but performing a thorough grid search on the parameters of each will tell us for certain.</p>
-<div class="highlight"><pre><span></span><span class="n">clf_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">clf_features_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
-<span class="n">clf_features_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
-<span class="n">clf_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">clf_features_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>  
-                          <span class="n">id_vars</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span>
-                          <span class="n">var_name</span> <span class="o">=</span> <span class="s1">&#39;feature&#39;</span><span class="p">,</span>
-                          <span class="n">value_name</span> <span class="o">=</span> <span class="s1">&#39;importance&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;importance&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;importance&#39;</span><span class="p">])</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;importance&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;RdBu&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">clf_features_df</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_56_0.png"></p>
-<p>This reveals that we can drop "Age_Record", as neither algorithm is making much use of it. Everything on the graph to the left of "Pclass" could be a candidate from dropping to possibly improve accuracy, but first I will drop "Age_Record", "Cabin_Record", and "Embarked" tune each algorithm, and evaluate the results.</p>
-<div class="highlight"><pre><span></span><span class="n">drop_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Age_Record&#39;</span><span class="p">,</span> <span class="s1">&#39;Cabin_Record&#39;</span><span class="p">,</span> <span class="s1">&#39;Embarked&#39;</span><span class="p">]</span>
-<span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBClassifier</span><span class="p">()</span>
-<span class="n">rfc</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">()</span>
-
-<span class="n">clf_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">xgb</span><span class="p">,</span> <span class="n">rfc</span><span class="p">]</span>
-<span class="n">clf_name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">,</span> <span class="s1">&#39;Random Forest&#39;</span><span class="p">]</span>
-
-
-<span class="n">xgb_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">],</span>
-              <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
-              <span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
-              <span class="s1">&#39;min_child_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
-              <span class="s1">&#39;gamma&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
-              <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">77</span><span class="p">]}</span>
-
-
-<span class="n">rfc_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">750</span><span class="p">,</span> <span class="mi">1000</span><span class="p">],</span>
-              <span class="s1">&#39;max_features&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
-              <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-              <span class="s1">&#39;min_samples_leaf&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
-              <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">77</span><span class="p">]</span>
-             <span class="p">}</span>
-
-
-<span class="n">cv_res</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">)</span>
-<span class="n">clf_best</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">clf_name_list</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">clf</span> <span class="ow">in</span> <span class="n">clf_list</span><span class="p">:</span>
-    <span class="n">clf_name</span> <span class="o">=</span> <span class="n">clf_name_list</span><span class="p">[</span><span class="n">clf_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">clf</span><span class="p">)]</span>
-    <span class="k">if</span> <span class="n">clf_name</span> <span class="o">==</span> <span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">:</span>
-        <span class="n">param_grid</span> <span class="o">=</span> <span class="n">xgb_params</span>
-    <span class="k">elif</span> <span class="n">clf_name</span> <span class="o">==</span> <span class="s1">&#39;Random Forest&#39;</span><span class="p">:</span>
-        <span class="n">param_grid</span> <span class="o">=</span> <span class="n">rfc_params</span>
-
-    <span class="n">clf_gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
-                                      <span class="n">return_train_score</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">clf_gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-
-    <span class="n">clf_best</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_estimator_</span>
-    <span class="n">cv_res</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">cv_results_</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Best score: &#39;</span><span class="p">,</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_score_</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Using parameters: &#39;</span><span class="p">,</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_params_</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Fully described by: &#39;</span><span class="p">,</span> <span class="n">clf_gs</span><span class="o">.</span><span class="n">best_estimator_</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>Best score:  84.3995510662
-
-Using parameters:  {&#39;gamma&#39;: 1, &#39;learning_rate&#39;: 0.1, &#39;max_depth&#39;: 9, &#39;min_child_weight&#39;: 4, &#39;n_estimators&#39;: 25, &#39;random_state&#39;: 77}
-
-Fully described by:  XGBClassifier(base_score=0.5, booster=&#39;gbtree&#39;, colsample_bylevel=1,
-       colsample_bytree=1, gamma=1, learning_rate=0.1, max_delta_step=0,
-       max_depth=9, min_child_weight=4, missing=None, n_estimators=25,
-       n_jobs=1, nthread=None, objective=&#39;binary:logistic&#39;,
-       random_state=77, reg_alpha=0, reg_lambda=1, scale_pos_weight=1,
-       seed=None, silent=True, subsample=1)
-
-Best score:  83.950617284
-
-Using parameters:  {&#39;max_depth&#39;: 15, &#39;max_features&#39;: 0.8, &#39;min_samples_leaf&#39;: 4, &#39;n_estimators&#39;: 1000, &#39;random_state&#39;: 77}
-
-Fully described by:  RandomForestClassifier(bootstrap=True, class_weight=None, criterion=&#39;gini&#39;,
-            max_depth=15, max_features=0.8, max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=4, min_samples_split=2,
-            min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=1,
-            oob_score=False, random_state=77, verbose=0, warm_start=False)
-</pre></div>
-
-
-<p>I can now use the GridSearch results from from the above to investigate if any further fine tuning of parameters is likely to be beneficial for either classifier.</p>
-<div class="highlight"><pre><span></span><span class="n">df_xgb_cvres</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cv_res</span><span class="p">[</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">])</span>
-<span class="n">df_rfc_cvres</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cv_res</span><span class="p">[</span><span class="s1">&#39;Random Forest&#39;</span><span class="p">])</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-
-<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">ax5</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-
-<span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">ax4</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">ax5</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_gamma&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_min_child_weight&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_learning_rate&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_max_depth&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;param_n_estimators&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_xgb_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax5</span><span class="p">)</span>
-
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_62_0.png"></p>
-<p>The best parameters returned by the CVGrid, for the random state assiged, were 'gamma': 1, 'learning_rate': 0.1, 'max_depth': 9, 'min_child_weight': 4, 'n_estimators': 25.</p>
-<p>Each of the plots above appears to contain the peak value for each parameter, and it does not seems that much would be added by exploring additional parameters at either end of the range. However, it appears that the best parameters returned by CVGrid could benefit from some further tuning. I will explore this below.</p>
-<ul>
-<li>Mean test scores at a gamma value of 0 is highly inconsistent, while they are much more consistent at a value of 5. Retaining a value of 1 would likely result in a lot of variation in accuracy when applying this classifier to new data.</li>
-<li>The minimum child weight clearly peaks at 4, though values of 2 and 3 are worth considering due to their higher degree of consistency. At a value of 1 the algorithm is not conservative enough and likely overfits the training data. At a value of 5 it is overly conservative and loses a significant amount of accuracy.</li>
-<li>Going from a learning weight of 0.1 to 0.2, there is some increase in mean test score values, though the top of its range in slightly lower. It might be worth exploring values that are slightly higher.</li>
-<li>While the highest test scores for maximum depth of 12 are higher than those for values of 7 and 9, the difference is not very significant, and there is slightly more variation within scores for this value. Since increases in maximum depth contributes to overfitting, the increased variation in test values observed at a value of 12 indicates that increasing the value further will likely result in overfitting. It appears that a value of 5 yields greater consistency with a mean test score that is roughly the same.</li>
-<li>Mean test scores appear to increase with the number of estimators, but accuracy seems to level off above a number of 100. This indicates that increases in amount of computation time may not be very useful above this level.</li></ul>
-
-<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-
-<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">ax4</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-<span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">ax4</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_min_samples_leaf&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_max_features&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_max_depth&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;param_n_estimators&#39;</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df_rfc_cvres</span><span class="p">[</span><span class="s1">&#39;mean_test_score&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;Accent_r&#39;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="Pelican" src="../images/output_64_0.png"></p>
-<p>The best parameters returned by the CVGrid, for the random state assiged, were 'min_samples_leaf': 4, 'max_features': .8, 'max_depth': 15, 'n_estimators': 1000.</p>
-<p>As with the gradient boosting classifier, each of the plots above appears to likely contain the peak value for each parameter, and it does not seems that much would be added by exploring additional parameters at either end of the range. There are a couple of parameters that appear as if they would benefit from further tuning. I will explore this below.</p>
-<ul>
-<li>The minimum samples per leaf clearly peaks at 8. A value of 4 yields similar mean test scores, but with a much lower precision. For more consistent results when presented with new data, a value of 8 here would be best.</li>
-<li>When the maximum number of features is 80% of those in the data set, the highest test scores return tend to be higher, but with a large cost to precision. The mean result with trees utilizing 40% of the features is higher, and the mean test score results are more consistent.</li>
-<li>As with gradient boosting, increasing the maximum depth decreases precision dramatically. Exploring values below 15 might be beneficial.</li>
-<li>Mean test scores appear to increase with the number of estimators. Exploring numbers above 1000 might be beneficial, but any increase in accuracy above this would result in a significant investment of processing time.</li></ul>
-
-<p>Further tuning to these algorithms yields a result that is in the top 5% of Kaggle.com submissions. Continue from here to discover which yields a better final score! Is it possibile to engineer additional features that might increase the score further?</p>
-		</div> <!--/#entry-content-->
-    		<span class="tag-links"><strong>Tagged</strong>
- <a href="/tag/data-analysis.html" rel="tag">data analysis</a>,  <a href="/tag/data-visualization.html" rel="tag">data visualization</a>,  <a href="/tag/kagglecom.html" rel="tag">Kaggle.com</a>,  <a href="/tag/machine-learning.html" rel="tag">machine learning</a>,  <a href="/tag/random-forest.html" rel="tag">Random Forest</a>,  <a href="/tag/titanic.html" rel="tag">Titanic</a>,  <a href="/tag/xgboost.html" rel="tag">XGBoost</a>    		</span>
-	</div> <!--/#main-->
-</div>  <!--/#post--><div class="navigation">
-		<div class="nav-previous">
-				<a href="/author/william-miller.html">
-			<span class="meta-nav">&larr;</span> Newer posts</a>
-		</div>		
-</div>
-		</div>
-
-		<div id="footer">
-			<p>Powered by <a href="http://getpelican.com">Pelican</a>, theme by <a href="http://bunnyman.info">tBunnyMan</a>.</p>
-		</div><!-- /#footer -->
-	</div><!-- /#container -->
-	<div style="display:none"></div>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <a href="https://wamiller0783.github.io">
+            <img class="img-fluid" src=https://wamiller0783.github.io/images/pattern_img_1.jpg width=150 height=150 alt="William Miller's Projects">
+          </a>
+        </div>
+        <div class="col-sm-8">
+          <h1 class="title"><a href="https://wamiller0783.github.io">William Miller's Projects</a></h1>
+          <p class="text-muted">Searching for Patterns that Matter</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>William Miller Articles
+</h1>
+      <hr>
+<article class="row teaser">
+  <header class="col-sm-4 text-muted">
+    <ul>
+      <li title="2018-04-10T11:00:00-05:00">
+        <i class="fa fa-clock-o"></i>
+        Tue 10 April 2018
+      </li>
+      <li>
+        <i class="fa fa-folder-open-o"></i>
+        <a href="https://wamiller0783.github.io/category/machine-learning.html">Machine Learning</a>
+      </li>
+      <li>
+        <i class="fa fa-user-o"></i>
+        <a href="https://wamiller0783.github.io/author/william-miller.html">William Miller</a>      </li>
+    </ul>
+  </header>
+  <div class="col-sm-8">
+    <h4 class="title"><a href="https://wamiller0783.github.io/titanic-survivor-post.html">Titanic Survivor Prediction</a></h4>
+    <div class="content">
+      An analysis of Titanic Survivor data from Kaggle.com using decision trees.
+    </div>
+  </div>
+</article>
+<hr>
+<ul class="pagination">
+  <li class="page-item">
+    <a class="page-link" href="https://wamiller0783.github.io/author/william-miller.html">
+      <span aria-hidden="true">&laquo;</span>
+      <span class="sr-only">Previous</span>
+    </a>
+  </li>
+  <li class="page-item disabled">
+    <span class="page-link">2 of 2</span>
+  </li>
+</ul>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+       <ul class="col-sm-6 list-inline">
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/authors.html">Authors</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/archives.html">Archives</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/categories.html">Categories</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/tags.html">Tags</a></li>
+        </ul>
+        <p class="col-sm-6 text-sm-right text-muted">
+          Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a> / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+        </p>
+      </div>
+    </div>
+  </footer>
 </body>
+
 </html>

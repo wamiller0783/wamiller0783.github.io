@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags always come first -->
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Naming the Stars - Using a Convoluted Neural Network to Classify Galaxy Images | William Miller's Projects
+</title>
+  <link rel="canonical" href="https://wamiller0783.github.io/deep-learning-galaxy-prediction.html">
+
+
+
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://wamiller0783.github.io/theme/css/style.css">
+
+
+<meta name="description" content="While telescopes are continually capturing images of these galaxies, the sheer number of them makes their classification by humans an unlikely, if not impossible, task. Fortunately, with the creation of neural networks that excel at image classification, this problem is imminently solvable. I set out to see just how accurately galaxies can be classified by a convolutional neural network.">
+<script>
+  (function(i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function() {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o);
+    a.async = 1;
+    a.src = g;
+    m = s.getElementsByTagName(o)[0];
+    m.parentNode.insertBefore(a, m)
+  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+  ga('create', 'UA-119561301-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <a href="https://wamiller0783.github.io">
+            <img class="img-fluid" src=https://wamiller0783.github.io/images/pattern_img_1.jpg width=150 height=150 alt="William Miller's Projects">
+          </a>
+        </div>
+        <div class="col-sm-8">
+          <h1 class="title"><a href="https://wamiller0783.github.io">William Miller's Projects</a></h1>
+          <p class="text-muted">Searching for Patterns that Matter</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>Naming the Stars<br><h3>Using a Convoluted Neural Network to Classify Galaxy Images</h3>
+</h1>
+<br></br>
+<center><img src="./images/GalaxyClass/starfield.png"width=300></center>
+      <hr>
+<article class="article">
+  <header>
+    <ul class="list-inline">
+      <li class="list-inline-item text-muted" title="2018-12-22T16:00:00-06:00">
+        <i class="fa fa-clock-o"></i>
+        Sat 22 December 2018
+      </li>
+      <li class="list-inline-item">
+        <i class="fa fa-folder-open-o"></i>
+        <a href="https://wamiller0783.github.io/category/deep-learning-convoluted-neural-network-image-prediction.html">Deep Learning, Convoluted Neural Network, Image Prediction</a>
+      </li>
+      <li class="list-inline-item">
+        <i class="fa fa-user-o"></i>
+        <a href="https://wamiller0783.github.io/author/william-miller.html">William Miller</a>      </li>
+      <li class="list-inline-item">
+        <i class="fa fa-files-o"></i>
+        <a href="https://wamiller0783.github.io/tag/deep-learning.html">#Deep Learning</a>,         <a href="https://wamiller0783.github.io/tag/cnns.html">#CNNs</a>,         <a href="https://wamiller0783.github.io/tag/image-prediction.html">#Image Prediction</a>,         <a href="https://wamiller0783.github.io/tag/space.html">#Space</a>      </li>
+    </ul>
+  </header>
+  <div class="content">
+
+
+
+<p>As of the most recent estimates, there are more than 2 trillion galaxies in the universe. While telescopes are continually capturing images of these galaxies, the sheer number of them makes their classification by humans an unlikely, if not impossible, task. Fortunately, with the creation of neural networks that excel at image classification, this problem is imminently solvable. I set out to see just how accurately galaxies could be classified by a convolutional neural network, applying a pre-trained neural net to images from the Sloan Digital Sky Survey.</p>
+<p>In 2007, the Sloan Digital Sky Survey published a data set consisting of over a million images of galaxies. These were eventually added to other data sets of galaxy images by a team of scientists known as Galaxy Zoo, which facilitated the crowd-sourced labelling of these galaxies. Much of this data was eventually released as a part of a Kaggle competition in 2013, which provided galaxy images along with the probability of classifications applying to each galaxy. The data resulting from this crowd sourcing can be found <a href="https://www.kaggle.com/c/galaxy-zoo-the-galaxy-challenge/data">here</a>.</p>
+<br></br>
+<h3>Getting to know the data</h3>
+<p>One of the initial challenges in obtaining actual galaxy classifications from this data is that the features are determined by answers to questions in a designated task list (pictured below). Each feature in the data set represents a percentage of crowd-sourced data labels that assigned a classification to an image. For instance, if 62% of labellers gave an answer of "No" on task 3, a value of 0.62 would be assigned Class 3.2.</p>
+<center><img src="./images/GalaxyClass/tasklist.png"></center>
+<p>The above chart can, to at least some degree, be distilled into Hubble's galaxy classification system. As can be seen below, this divides galaxies into ellipticals, spirals, and spiral bar classes.
+<center><img src="./images/GalaxyClass/hubbleclasses.png" width=400></center></p>
+<p>In the crowd sourced data, ellipticals would be indicated by class 1.1 in the data.
+Spirals would be indicated by classes 4.1 and 3.2 together.
+Spiral bar galaxies would be indicated by classes 4.1 and 3.1 together.</p>
+<p>Subclasses of each of these would be indicated in classes 7 (degrees of elliptical), or 10 and 11 (types of spiral and spiral bar galaxies).</p>
+<p>Before immediately training a model to predict to the crowd-sourced data labels, it is worth exploring the shape of that data a bit and verifying its integrity. As a first step, I wanted to ensure that there was actually a high degree of agreement among labellers - if the maximum certainty for most of the classes is no higher than 60%, the data may be mostly useless.</p>
+<center><img src="./images/GalaxyClass/maxagreement.png" width=70%></center>
+<p>Fortunately, as can be seen in the image above, most classes have a maximum agreement of at least 80%, indicating that there are at least some galaxies which had a classification that was generally agreed upon.</p>
+<p>Next, it would be good to know how much agreement there is for each class.</p>
+<center><img src="./images/GalaxyClass/classdistributionbox.png" width=70%></center>
+<p>Important information that can be gleaned from these graphs, from left to right:
+<ol>
+<li>There is nothing "odd" about the majority of labelled galaxy images. (Class 6.2 compared to 6.1)</li>
+<li>More than half of galaxy images include some kind of feature or disk, but a significant range is observed in every quartile (Class 1.2)</li>
+<li>Around 40% of galaxies could not be disks viewed edge-on, though significant range is observed in every quartile. (Class 2.2 compared to 2.1)</li>
+<li>Where galaxies are not disks viewed edge-on, most tend not have have a bar (Class 3.2 compared to 3.1)</li>
+</ol>
+Overall, the median agreement for each class tends to be rather small, but it appears there are galaxies in most classes for which a significant number of labellers were in agreement.</p>
+<p>I also found it useful to ensure that galaxies which had a high degree of classification agreement appeared as I thought they would. The images below were found by taking the first example that met each of the following criteria:
+<ol>
+    <li>Ellipticals: 90% of labellers assign class 1.1</li>
+    <li>Spirals: 90% of labellers assign both class 4.1 and 3.2</li>
+    <li>Spiral bars: 90% of labellers assign both class 4.1 and 3.1</li>
+</ol></p>
+<p>Repeating the exact same criteria, except with a threshold of 60%, yields encouragingly similar results, even if the images are somewhat less distinct.</p>
+<center><img src="./images/GalaxyClass/galaxyexamples90.png" width=90%></center>
+<center><img src="./images/GalaxyClass/galaxyexamples60.png" width=90%></center>
+<br></br>
+<h3>Building a convolutional neural network - Prerequisites</h3>
+<br></br>
+<h4>Getting started with an Amazon EC2 Server</h4>
+<p>When I first attempted to train a CNN to predict galaxy class labels from images, I quickly realized that my laptop was not going up to the task. Even if I happened to set all of the parameters optimally on the first try, it would have taken roughly 2 days to train for only 10 epochs. I realized that I needed to learn how to harness some external processing power. After doing some research on my options, I turned to Amazon Web Services. This turned out to be a bit of a process, so I will briefly outline the steps I went through below.</p>
+<h5>Initial set up</h5>
+<p>I started off by following the steps laid out in <a href="https://aws.amazon.com/blogs/machine-learning/get-started-with-deep-learning-using-the-aws-deep-learning-ami/">this very helpful guide</a>. There was one major hitch, however. AWS would not let me select a p2.xlarge instance, which after thoroughly looking into it, was the option I decided I needed. It turned out that my default limit for this type of instance was automatically set at zero, and I had to convince them - over the course of 2 weeks of communication (mostly on my part) - that this was a thing I actually needed for my project. Fortunately, they eventually granted a limit increase to run one p2.xlarge instance. I then completed the guide I linked to above.</p>
+<h5>Migrating the project</h5>
+<p>So I finally had the instance up and running, which after all the negotiation, felt like more of an accomplishment than it should have. However, I ran into a roadblock, as I had never needed to migrate data to or from a remote server anymore. After doing a bit of research, I discovered the I should be using the scp command and the syntax of it.</p>
+<p>The bit of magic that did the job was:  </p>
+<div class="highlight"><pre><span></span>⁨scp -i AWSKeyFilename.pem -r ubuntu@(instanceaddress):~/remotepath localpath/
+</pre></div>
+<p>where "instance address" was the text copied in step 6 of the guide I linked to above, and the rest is hopefully obvious. I included the '~/' before "remotepath" and "/" after "localpath" above because these turned out to be important to include in the paths. Thus began the long process of copying tens of thousands of images of galaxies onto my EC2 server.</p>
+<h5>Selecting an environment</h5>
+<p>When I attempted to train the model on my laptop, I had decided to use Keras with a Tensorflow backend, and I opted to stick with this choice. Before starting my project on the remote server, it was important to activate this environment (using Python 3.6) by typing "source activate tensorflow_p36". I was then ready to start up my jupyter notebook and start refining my project.</p>
+<br></br>
+<h4>Image processing</h4>
+<p>Having looked through a large number of the galaxy images, I had discovered that they were all centered on the galaxies to be classified and that there was a large amount of irrelevant space around each galaxy. I found that I could crop the images to half the size around the center of each, which would decrease the number of irrelevant artifacts in each image and exponentially decrease training time. I accomplished this with the function below, which I included in my batch generation pipeline.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span>
+<span class="k">def</span> <span class="nf">center_crop_images</span><span class="p">(</span><span class="n">filepath_list</span><span class="p">,</span> <span class="n">image_shape_tuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description:</span>
+<span class="sd">    Import images contained in filepath_list, read, transform according to image_shape_tuple</span>
+
+<span class="sd">    Inputs:</span>
+<span class="sd">        filepath_list = List of filepaths containing images to process</span>
+<span class="sd">        image_shape_tuple = Tuple in the form of (channels, height, width)</span>
+<span class="sd">        scale_factor = The factor by which the resolution of the images should be multiplied</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">image_shape_tuple</span>
+    <span class="c1"># Get count of files in to crop, as this will be the first element in the output array</span>
+    <span class="n">path_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filepath_list</span><span class="p">)</span>
+    <span class="c1"># Divide width and height by 2 in order to allow cropping around center</span>
+    <span class="n">x_scale_unit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">y_scale_unit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># Create an empty array in the shape of the final output</span>
+    <span class="n">img_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">path_count</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">channels</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filepath_list</span><span class="p">):</span>
+        <span class="c1"># Read image</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="c1"># Crop image</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">x_scale_unit</span><span class="p">:</span><span class="n">x_scale_unit</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span>
+                  <span class="n">y_scale_unit</span><span class="p">:</span><span class="n">y_scale_unit</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="c1"># Resize image to properly fit cropped dimensions</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">channels</span><span class="p">))</span> <span class="c1"># can be used for resolution downscaling if needed</span>
+        <span class="c1"># Add image to the output array</span>
+        <span class="n">img_array</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
+    <span class="k">return</span> <span class="n">img_array</span>
+</pre></div>
+
+
+<p><center>
+<table>
+    <tr>
+    <td><center>Galaxy images before cropping</center><img src="./images/GalaxyClass/beforecropping.png" width=300></td>
+    <td><center>The same images after cropping</center><img src="./images/GalaxyClass/aftercropping.png" width=300></td>
+    </tr>
+</table>
+</center></p>
+<br></br>
+<h3>Building the Convolutional Neural Network</h3>
+<p>Now for the more exciting stuff. After doing some research on various CNNs pre-trained for image prediction, I opted to modify a VGG16 architecture with imagenet weights for my neural network. However, I discovered that I did not have the clearest idea of how to link my training targets to data from the images in batches so that the neural net could be trained on it. I then learned how to create a custom batch generation class - the code for which is below.</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Batchifier</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for creating training, testing, and validation batches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">):</span>
+        <span class="c1"># Describe directory structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">parent_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_path</span> <span class="o">=</span> <span class="s1">&#39;target_data/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_path</span> <span class="o">=</span> <span class="n">parent_path</span> <span class="o">+</span> <span class="s2">&quot;train_images/&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">testing_path</span> <span class="o">=</span> <span class="n">parent_path</span> <span class="o">+</span> <span class="s2">&quot;test_images/&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_path</span> <span class="o">=</span> <span class="n">parent_path</span> <span class="o">+</span> <span class="s2">&quot;validation_images/&quot;</span>
+
+
+        <span class="k">def</span> <span class="nf">get_filepaths</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+            <span class="c1"># Converts directory structures to lists of filepaths</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Convert each directory to a list of filepaths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_img_files</span> <span class="o">=</span> <span class="n">get_filepaths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">testing_img_files</span> <span class="o">=</span> <span class="n">get_filepaths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testing_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_img_files</span> <span class="o">=</span> <span class="n">get_filepaths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_path</span><span class="p">)</span>
+
+
+        <span class="k">def</span> <span class="nf">get_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_path</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Description: Separates target data from key values and returns a dictionary of target data.</span>
+<span class="sd">            Inputs: Target data in a csv file.</span>
+<span class="sd">            Outputs: A dictionary of target values with labels as keys and target data as values.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Create dataframe from the name of the csv file in target_path</span>
+            <span class="n">targets_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">target_path</span> <span class="o">+</span> <span class="s1">&#39;targets.csv&#39;</span><span class="p">)</span>
+            <span class="c1"># Create empty dictionary for temporary storage of target data</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># Iterate through the targets_df dataframe</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">targets_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                <span class="c1"># Create a mask to select only the label data</span>
+                <span class="n">key_mask</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;GalaxyID&#39;</span><span class="p">])</span>
+                <span class="c1"># Convert the label data to a string to use as a dictionary key</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;GalaxyID&#39;</span><span class="p">]))</span>
+                <span class="c1"># Use the inverse of the key mask to select only the target data</span>
+                <span class="n">target_values</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="o">~</span><span class="n">key_mask</span><span class="p">]</span>
+                <span class="c1"># Use the key to store the target values in a particular instance of the targets dictionary</span>
+                <span class="n">targets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">target_values</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">targets</span>
+
+        <span class="c1"># Use the get_targets function to assign target data dictionary to self.targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">get_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
+
+    <span class="c1"># Create an ID from the filename of each image</span>
+    <span class="k">def</span> <span class="nf">get_galaxyid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fname</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Get the target data assigned to any particular label.</span>
+    <span class="k">def</span> <span class="nf">find_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+
+<span class="n">batch_object</span> <span class="o">=</span> <span class="n">Batchifier</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This was then referenced by the generator for each of the training, validation, and test sets as follows (substituting the filepaths and appropriate variable names for each set, of course):</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">TrainingBatchGenerator</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">training_img_files</span><span class="p">:</span>
+            <span class="c1"># Crop image contained in &quot;f&quot;.</span>
+            <span class="n">X_train</span> <span class="o">=</span> <span class="n">center_crop_images</span><span class="p">([</span><span class="n">batch</span><span class="o">.</span><span class="n">training_path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">[</span><span class="n">f</span><span class="p">]],</span> <span class="p">(</span><span class="mi">212</span><span class="p">,</span> <span class="mi">212</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="c1"># Get the ID (label) for this image file</span>
+            <span class="n">galaxyid_</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_galaxyid</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="c1"># Get the target data associated with this ID</span>
+            <span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">find_label</span><span class="p">(</span><span class="n">galaxyid_</span><span class="p">))</span>
+            <span class="c1"># Ensure the target data is shaped appropriately to the number of classes</span>
+            <span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_train</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="mi">37</span><span class="p">))</span>
+            <span class="c1"># Return formatted training and target data.</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Having created a way to feed data to my neural net, I finalized my network. All of the lines prior to "flatten" are part of the VGG16 architecture. To better enable the network to better fit my data, I flattened the output from this architecture, and I added a 1024 neuron dense layer, a dropout layer, another 1024 neuron dense layer, and a final dense layer to set the network output equal to the number of classes. Choosing "sigmoid" activation over "softmax" in the final layer was very important in this case, as "softmax" forces all classes to sum up to one, which is not the case with the classes in the target data. The purpose of the dropout layer was to regularize the network, dropping out random neurons during training to prevent the model from overfitting to the training data.</p>
+<p>The code to accomplish this was relatively simple, and was written as follows:</p>
+<div class="highlight"><pre><span></span><span class="c1"># Initialize a VGG model using pretrain imagenet weights, not including the top-most layers</span>
+<span class="n">vgg</span> <span class="o">=</span> <span class="n">VGG16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;imagenet&#39;</span><span class="p">,</span> <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">212</span><span class="p">,</span><span class="mi">212</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">include_top</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c1">#Adding custom top layers to allow training for this particular data</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">vgg</span><span class="o">.</span><span class="n">output</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># It is important to use &quot;sigmoid&quot; activation in this case, as probabilities for each class do not add to 1.</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">model_final</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">vgg</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">outputs</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The final architecture of the network is summarized as:</p>
+<div class="highlight"><pre><span></span>_____________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+input_1 (InputLayer)         (None, 212, 212, 3)       0
+_________________________________________________________________
+block1_conv1 (Conv2D)        (None, 212, 212, 64)      1792
+_________________________________________________________________
+block1_conv2 (Conv2D)        (None, 212, 212, 64)      36928
+_________________________________________________________________
+block1_pool (MaxPooling2D)   (None, 106, 106, 64)      0
+_________________________________________________________________
+block2_conv1 (Conv2D)        (None, 106, 106, 128)     73856
+_________________________________________________________________
+block2_conv2 (Conv2D)        (None, 106, 106, 128)     147584
+_________________________________________________________________
+block2_pool (MaxPooling2D)   (None, 53, 53, 128)       0
+_________________________________________________________________
+block3_conv1 (Conv2D)        (None, 53, 53, 256)       295168
+_________________________________________________________________
+block3_conv2 (Conv2D)        (None, 53, 53, 256)       590080
+_________________________________________________________________
+block3_conv3 (Conv2D)        (None, 53, 53, 256)       590080
+_________________________________________________________________
+block3_pool (MaxPooling2D)   (None, 26, 26, 256)       0
+_________________________________________________________________
+block4_conv1 (Conv2D)        (None, 26, 26, 512)       1180160
+_________________________________________________________________
+block4_conv2 (Conv2D)        (None, 26, 26, 512)       2359808
+_________________________________________________________________
+block4_conv3 (Conv2D)        (None, 26, 26, 512)       2359808
+_________________________________________________________________
+block4_pool (MaxPooling2D)   (None, 13, 13, 512)       0
+_________________________________________________________________
+block5_conv1 (Conv2D)        (None, 13, 13, 512)       2359808
+_________________________________________________________________
+block5_conv2 (Conv2D)        (None, 13, 13, 512)       2359808
+_________________________________________________________________
+block5_conv3 (Conv2D)        (None, 13, 13, 512)       2359808
+_________________________________________________________________
+block5_pool (MaxPooling2D)   (None, 6, 6, 512)         0
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 18432)             0
+_________________________________________________________________
+dense_1 (Dense)              (None, 1024)              18875392
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 1024)              0
+_________________________________________________________________
+dense_2 (Dense)              (None, 1024)              1049600
+_________________________________________________________________
+dense_3 (Dense)              (None, 37)                37925
+=================================================================
+Total params: 34,677,605
+Trainable params: 34,677,605
+Non-trainable params: 0
+_________________________________________________________________
+</pre></div>
+
+
+<p>This model was compiled with the "Adam" optimizer, with the learning rate set to $1*10^{-5}$ and the rest of the parameters set to the defaults. I then trained the model for 50 epochs with callbacks for early stopping, checkpoints, and tensorboard. This trained relatively quickly on the AWS image, with a training time well under 3 minutes per epoch. The lowest mean squared error of the model against the validation data was 0.0084 after training for 40 epochs. Evaluating this model against the data I held out for testing gave an MSE of 0.0094. A plot of the training history is below.</p>
+<p><center>Galaxy Image Classifier Training History
+<img src="./images/GalaxyClass/traininghistory.png" width=70%></center></p>
+<br></br>
+<h3>Evaluating the convolutional neural network</h3>
+<p>Having trained the convolutional neural network (CNN) to a low MSE and evaluated the performance of the network on the testing data, I could now use the testing images to dig a little bit further into how the model predictions compare with the actual data. I repeated much of the same process that I used in exploring that data initially on the predictions generated by the CNN.</p>
+<p>One thing which stood out as interesting is that the maximum agreement per class tended to be much lower in the predictions than it was in the actual data, as can be seen in the image below.</p>
+<p><center><img src="./images/GalaxyClass/predictionsmaxagreement.png" width=70%></center></p>
+<p>This ended up being due to the fact that classes which had higher average percentages of agreement among data labellers (as seen in the "Class Distribution by Percent Agreement" plot above) tended to have higher mean squared errors than those which had lower percentages of agreement, as can be seen in the following bar chart.</p>
+<p><center><img src="./images/GalaxyClass/predictionsMSEbyclass.png" width=70%></center>/p>
+<p>For me, knowing about the performance of the neural network is one thing, but what is really interesting is seeing it actually make useful predictions. To see this, I had it make predictions on some images it had not yet seen and took the first samples it returned with high degrees of agreement for the three basic Hubble classes as seen above. The images that follows are from predictions the neural network made on images it had been exposed to in training or validation:</p>
+<p><center><img src="./images/GalaxyClass/predictedgalaxyexamples80.png" width=90%></center>
+<center><img src="./images/GalaxyClass/predictedgalaxyexamples60.png" width=90%></center></p>
+<p>It looks like the neural network is a success! Each image clearly corresponds with its Hubble classification, demonstrating that it has successfully learned to classify galaxies.</p>
+  </div>
+</article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+       <ul class="col-sm-6 list-inline">
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/authors.html">Authors</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/archives.html">Archives</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/categories.html">Categories</a></li>
+          <li class="list-inline-item"><a href="https://wamiller0783.github.io/tags.html">Tags</a></li>
+        </ul>
+        <p class="col-sm-6 text-sm-right text-muted">
+          Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a> / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>
